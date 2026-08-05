@@ -1,0 +1,76 @@
+﻿# Visual Studio / VB.NET
+.vs/
+*.suo
+*.user
+*.vbproj.user
+
+# Build artifacts
+bin/
+obj/
+packages/
+
+# Visual Studio test and coverage
+*.vsmdi
+*.testsettings
+*.runsettings
+*.trx
+*.testrunconfig
+
+# Binary files
+*.exe
+*.dll
+*.pdb
+
+# NuGet
+*.nupkg
+
+# OS files
+.DS_Store
+Thumbs.db
+*.lnk
+
+# Temp / logs / backups
+*.log
+*.tmp
+*.bak
+*~*
+logs/
+
+# Local DB / DB backups
+*.mdf
+*.ldf
+*.sqlbak
+
+# IDE / editor
+.vscode/
+
+# Secrets
+.env
+secrets.yml
+*.key
+
+# Ignore large archives and packages
+*.zip
+*.tar.gz
+*.7z
+
+# Additional generated / binary-like files
+*.licx
+*.xlsx
+
+# User-requested ignores
+*.suo
+*.user
+*.bak
+*.myapp
+*.settings
+*.lnk
+*.pdf
+*.csv
+
+# Local-only work folders (not committed)
+work/Aoyama/_FAXエラー/
+work/Aoyama/_品番置換問合せ/
+
+# Keep source: .vb, .Designer.vb, .vbproj, .sln, .sql are tracked
+# (SQL files intentionally included ? do NOT ignore *.sql)
