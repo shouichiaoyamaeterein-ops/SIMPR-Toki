@@ -1,0 +1,28 @@
+SELECT NJ.品番      区分タイプ,
+       NJ.手配先    区分名称,
+       NJ.内示年月  値,
+       SUM(NJ.数量) 件数,
+       CASE WHEN ISNULL(稼動日数, 0) = 0 
+            THEN 1
+            ELSE FLOOR(SUM(NJ.数量) / 稼動日数)
+       END  区分桁数,
+       ISNULL(稼動日数, 0) 数字1,
+       CASE WHEN ISNULL(HM.在庫日数, 0) = 0
+            THEN 1
+            ELSE HM.在庫日数
+       END  数字2,
+       ISNULL(HM.在庫日数, 0) 数字3
+  FROM 発注内示テーブル NJ
+  LEFT OUTER JOIN カレンダマスタ CA
+    ON CA.年+CA.月 = NJ.内示年月
+   AND CA.取引先 = ''
+   AND CA.取引先区分 = 1
+  LEFT OUTER JOIN 品番マスタ HM
+    ON HM.品番         = NJ.品番
+   AND HM.在庫管理区分 = 4
+ WHERE NJ.内示年月 BETWEEN '201508' AND '201510'
+   AND SUBSTRING(納期, 1, 6) = NJ.内示年月
+   AND NJ.品番     = '951110082042'
+ GROUP BY NJ.品番, NJ.内示年月, NJ.手配先
+         ,CA.稼動日数, HM.在庫日数
+ ORDER BY 内示年月

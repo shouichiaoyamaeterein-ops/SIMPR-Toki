@@ -1,0 +1,1410 @@
+VERSION 5.00
+Object = "{8FF8DA3B-2BD7-11D4-806A-00000EA57F9E}#4.0#0"; "CIS3D_~1.OCX"
+Begin VB.Form CTP3210 
+   BackColor       =   &H00808000&
+   BorderStyle     =   1  '固定(実線)
+   Caption         =   "新eかんばん出荷データ変換"
+   ClientHeight    =   11235
+   ClientLeft      =   1335
+   ClientTop       =   2385
+   ClientWidth     =   15360
+   KeyPreview      =   -1  'True
+   LinkTopic       =   "Form1"
+   MaxButton       =   0   'False
+   MinButton       =   0   'False
+   PaletteMode     =   1  'Z ｵｰﾀﾞｰ
+   ScaleHeight     =   11235
+   ScaleWidth      =   15360
+   Begin VB.PictureBox Bar 
+      Height          =   555
+      Left            =   4800
+      ScaleHeight     =   495
+      ScaleWidth      =   5715
+      TabIndex        =   12
+      Top             =   3450
+      Visible         =   0   'False
+      Width           =   5775
+   End
+   Begin Cis3D_v60.CIS3D PB_END 
+      Height          =   585
+      Left            =   5520
+      Top             =   7800
+      Width           =   1485
+      _ExtentX        =   2619
+      _ExtentY        =   1032
+      Caption         =   "終  了"
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "ＭＳ Ｐ明朝"
+         Size            =   14.25
+         Charset         =   128
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      cFont3DColor1   =   16777215
+      cFont3DColor2   =   8421504
+      cBoderWidth     =   4
+      cAlingnment     =   7
+      cButton         =   -1  'True
+   End
+   Begin VB.Timer Timer2 
+      Left            =   945
+      Top             =   840
+   End
+   Begin VB.Timer Timer1 
+      Left            =   510
+      Top             =   840
+   End
+   Begin VB.TextBox Dummy 
+      Height          =   375
+      Left            =   105
+      TabIndex        =   0
+      Text            =   "Dummy"
+      Top             =   855
+      Width           =   345
+   End
+   Begin Cis3D_v60.CIS3D PB_Ent 
+      Height          =   585
+      Left            =   8385
+      Top             =   7800
+      Width           =   1485
+      _ExtentX        =   2619
+      _ExtentY        =   1032
+      Caption         =   "開  始"
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "ＭＳ Ｐ明朝"
+         Size            =   14.25
+         Charset         =   128
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      cFont3DColor1   =   16777215
+      cFont3DColor2   =   8421504
+      cBoderWidth     =   4
+      cAlingnment     =   7
+      cButton         =   -1  'True
+   End
+   Begin Cis3D_v60.CIS3D UC_3D11 
+      Height          =   375
+      Left            =   0
+      Top             =   0
+      Width           =   15375
+      _ExtentX        =   27120
+      _ExtentY        =   661
+      BackColor       =   14737632
+      ForeColor       =   0
+      Caption         =   "【 新eかんばん出荷データ変換 】"
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "ＭＳ ゴシック"
+         Size            =   14.25
+         Charset         =   128
+         Weight          =   700
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      cFont3DColor1   =   -2147483643
+      cFont3DColor2   =   8421504
+      cBoderWidth     =   3
+      cAlingnment     =   1
+      cPositionX      =   1200
+      Begin Cis3D_v60.CIS3D Pgid 
+         Height          =   255
+         Left            =   14370
+         Top             =   60
+         Width           =   915
+         _ExtentX        =   1614
+         _ExtentY        =   450
+         BackColor       =   14737632
+         ForeColor       =   16711680
+         Caption         =   "SIMPR-A"
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Times New Roman"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   700
+            Underline       =   0   'False
+            Italic          =   -1  'True
+            Strikethrough   =   0   'False
+         EndProperty
+         cBoderColor1    =   14737632
+         cBoderColor2    =   14737632
+         cFont3DColor1   =   8454143
+         cFont3DColor2   =   16777215
+         cFont3D         =   1
+         cAlingnment     =   7
+         cBoderStyle     =   2
+      End
+      Begin Cis3D_v60.CIS3D Head_Tanto 
+         Height          =   285
+         Left            =   11850
+         Top             =   30
+         Width           =   2490
+         _ExtentX        =   4392
+         _ExtentY        =   503
+         BackColor       =   14737632
+         Caption         =   "XXXXXXXXX1XXXXXXXXX2"
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "ＭＳ ゴシック"
+            Size            =   12
+            Charset         =   128
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         cBoderColor1    =   8421504
+         cBoderColor2    =   -2147483643
+         cFont3DColor1   =   8421504
+         cFont3DColor2   =   -2147483643
+         cFont3D         =   2
+         cBoderStyle     =   1
+         cPositionX      =   50
+      End
+   End
+   Begin Cis3D_v60.CIS3D PB_Ok 
+      Height          =   585
+      Left            =   6960
+      Top             =   7800
+      Width           =   1485
+      _ExtentX        =   2619
+      _ExtentY        =   1032
+      Caption         =   "確　認"
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "ＭＳ Ｐ明朝"
+         Size            =   14.25
+         Charset         =   128
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      cFont3DColor1   =   16777215
+      cFont3DColor2   =   8421504
+      cBoderWidth     =   4
+      cAlingnment     =   7
+      cButton         =   -1  'True
+   End
+   Begin VB.PictureBox H1_Area1 
+      BackColor       =   &H00C0C0C0&
+      Height          =   3015
+      Left            =   4800
+      ScaleHeight     =   3075.616
+      ScaleMode       =   0  'ﾕｰｻﾞｰ
+      ScaleWidth      =   5700
+      TabIndex        =   4
+      TabStop         =   0   'False
+      Top             =   4050
+      Width           =   5760
+      Begin Cis3D_v60.CIS3D UC_3D3 
+         Height          =   2850
+         Index           =   1
+         Left            =   60
+         Top             =   60
+         Width           =   5580
+         _ExtentX        =   9843
+         _ExtentY        =   5027
+         Caption         =   ""
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "ＭＳ Ｐゴシック"
+            Size            =   9
+            Charset         =   128
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         cFont3DColor1   =   -2147483643
+         cFont3DColor2   =   8421504
+         Begin Cis3D_v60.CIS3D CIS3D4 
+            Height          =   945
+            Left            =   60
+            Top             =   1860
+            Width           =   5445
+            _ExtentX        =   9604
+            _ExtentY        =   1667
+            Caption         =   ""
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "ＭＳ Ｐゴシック"
+               Size            =   9
+               Charset         =   128
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            cBoderColor1    =   8421504
+            cBoderColor2    =   -2147483643
+            cFont3DColor1   =   16777215
+            cFont3DColor2   =   8421504
+            cBoderStyle     =   1
+            Begin Cis3D_v60.CIS3D CIS3D5 
+               Height          =   885
+               Left            =   30
+               Top             =   30
+               Width           =   3525
+               _ExtentX        =   6218
+               _ExtentY        =   1561
+               Caption         =   "今回処理対象ファイル数"
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "ＭＳ ゴシック"
+                  Size            =   12
+                  Charset         =   128
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               cBoderColor1    =   -2147483643
+               cFont3DColor1   =   8421504
+               cFont3DColor2   =   -2147483643
+               cFont3D         =   2
+               cAlingnment     =   7
+            End
+            Begin Cis3D_v60.CIS3D lb_FSu 
+               Height          =   885
+               Left            =   3555
+               Top             =   30
+               Width           =   1875
+               _ExtentX        =   3307
+               _ExtentY        =   1561
+               Caption         =   "ZZZ"
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "ＭＳ ゴシック"
+                  Size            =   27.75
+                  Charset         =   128
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               cBoderColor1    =   -2147483643
+               cFont3DColor1   =   8421504
+               cFont3DColor2   =   -2147483643
+               cFont3D         =   2
+               cAlingnment     =   4
+               cPositionX      =   -500
+            End
+         End
+         Begin Cis3D_v60.CIS3D UC_3D28 
+            Height          =   615
+            Index           =   1
+            Left            =   60
+            Top             =   60
+            Width           =   5430
+            _ExtentX        =   9578
+            _ExtentY        =   1085
+            Caption         =   ""
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "ＭＳ ゴシック"
+               Size            =   11.25
+               Charset         =   128
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            cBoderColor1    =   8421504
+            cBoderColor2    =   -2147483643
+            cFont3DColor1   =   -2147483643
+            cFont3DColor2   =   8421504
+            cBoderStyle     =   1
+            Begin VB.PictureBox B1_Area 
+               BackColor       =   &H00FFC0FF&
+               Height          =   555
+               Left            =   45
+               ScaleHeight     =   495
+               ScaleWidth      =   5310
+               TabIndex        =   5
+               TabStop         =   0   'False
+               Top             =   30
+               Width           =   5370
+               Begin Cis3D_v60.CIS3D lb_msg 
+                  Height          =   375
+                  Left            =   -240
+                  Top             =   90
+                  Width           =   5790
+                  _ExtentX        =   10213
+                  _ExtentY        =   661
+                  BackColor       =   16761087
+                  Caption         =   "新eかんばん出荷データ変換処理を行います"
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "ＭＳ ゴシック"
+                     Size            =   12
+                     Charset         =   128
+                     Weight          =   700
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+                  cBoderColor1    =   16761087
+                  cBoderColor2    =   16761087
+                  cFont3DColor1   =   -2147483643
+                  cFont3DColor2   =   8421504
+                  cAlingnment     =   6
+                  cBoderStyle     =   2
+               End
+            End
+         End
+         Begin Cis3D_v60.CIS3D CIS3D1 
+            Height          =   1035
+            Left            =   60
+            Top             =   780
+            Width           =   5430
+            _ExtentX        =   9578
+            _ExtentY        =   1826
+            BackColor       =   16777152
+            Caption         =   ""
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "ＭＳ ゴシック"
+               Size            =   12
+               Charset         =   128
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            cBoderColor1    =   8421504
+            cBoderColor2    =   -2147483643
+            cFont3DColor1   =   16777215
+            cFont3DColor2   =   8421504
+            cFont3D         =   2
+            cAlingnment     =   7
+            cBoderStyle     =   1
+            Begin VB.Label Hlb_FSu 
+               AutoSize        =   -1  'True
+               BackStyle       =   0  '透明
+               Caption         =   "Z,ZZZ"
+               BeginProperty Font 
+                  Name            =   "ＭＳ ゴシック"
+                  Size            =   12
+                  Charset         =   128
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               ForeColor       =   &H00000080&
+               Height          =   240
+               Left            =   2040
+               TabIndex        =   11
+               Top             =   180
+               Width           =   600
+            End
+            Begin VB.Label Label2 
+               AutoSize        =   -1  'True
+               BackStyle       =   0  '透明
+               Caption         =   "前回ﾌｧｲﾙ数："
+               BeginProperty Font 
+                  Name            =   "ＭＳ ゴシック"
+                  Size            =   12
+                  Charset         =   128
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               ForeColor       =   &H00000080&
+               Height          =   240
+               Left            =   510
+               TabIndex        =   10
+               Top             =   150
+               Width           =   1440
+            End
+            Begin VB.Label Hlb_ZDate 
+               AutoSize        =   -1  'True
+               BackStyle       =   0  '透明
+               Caption         =   "9999年99月99日 99：99"
+               BeginProperty Font 
+                  Name            =   "ＭＳ ゴシック"
+                  Size            =   12
+                  Charset         =   128
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               ForeColor       =   &H00000080&
+               Height          =   240
+               Left            =   2040
+               TabIndex        =   9
+               Top             =   600
+               Width           =   2520
+            End
+            Begin VB.Label Label1 
+               AutoSize        =   -1  'True
+               BackStyle       =   0  '透明
+               Caption         =   "前回処理日："
+               BeginProperty Font 
+                  Name            =   "ＭＳ ゴシック"
+                  Size            =   12
+                  Charset         =   128
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               ForeColor       =   &H00000080&
+               Height          =   240
+               Left            =   510
+               TabIndex        =   8
+               Top             =   600
+               Width           =   1440
+            End
+         End
+      End
+   End
+   Begin VB.PictureBox B1_Area1 
+      Height          =   1125
+      Left            =   4950
+      ScaleHeight     =   1065
+      ScaleWidth      =   5385
+      TabIndex        =   6
+      TabStop         =   0   'False
+      Top             =   5790
+      Visible         =   0   'False
+      Width           =   5445
+      Begin Cis3D_v60.CIS3D CIS3D2 
+         Height          =   525
+         Left            =   0
+         Top             =   30
+         Width           =   5385
+         _ExtentX        =   9499
+         _ExtentY        =   926
+         Caption         =   "【 TXX000001.TXT 】"
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "ＭＳ ゴシック"
+            Size            =   12
+            Charset         =   128
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         cFont3DColor1   =   16777215
+         cFont3DColor2   =   8421504
+         cAlingnment     =   1
+         cPositionX      =   60
+         Begin Cis3D_v60.CIS3D CIS3D3 
+            Height          =   375
+            Left            =   2700
+            Top             =   75
+            Width           =   2625
+            _ExtentX        =   4630
+            _ExtentY        =   661
+            Caption         =   "（ 99,999 / 99,999 ）"
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "ＭＳ ゴシック"
+               Size            =   12
+               Charset         =   128
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            cBoderColor1    =   8421504
+            cBoderColor2    =   -2147483643
+            cFont3DColor1   =   16777215
+            cFont3DColor2   =   8421504
+            cAlingnment     =   7
+            cBoderStyle     =   1
+         End
+      End
+      Begin Cis3D_v60.CIS3D CIS3D6 
+         Height          =   360
+         Left            =   30
+         Top             =   630
+         Width           =   5325
+         _ExtentX        =   9393
+         _ExtentY        =   635
+         BackColor       =   14737632
+         Caption         =   ""
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "ＭＳ ゴシック"
+            Size            =   12
+            Charset         =   128
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         cBoderColor1    =   8421504
+         cBoderColor2    =   -2147483643
+         cFont3DColor1   =   16777215
+         cFont3DColor2   =   8421504
+         cAlingnment     =   7
+         cBoderStyle     =   1
+      End
+   End
+   Begin VB.Label PNL_Ok 
+      Alignment       =   2  '中央揃え
+      BackStyle       =   0  '透明
+      Caption         =   "( F12 )"
+      ForeColor       =   &H00000000&
+      Height          =   195
+      Left            =   6945
+      TabIndex        =   7
+      Top             =   8475
+      Width           =   1485
+   End
+   Begin VB.Label PNL_ENT 
+      Alignment       =   2  '中央揃え
+      BackStyle       =   0  '透明
+      Caption         =   "( Enter )"
+      ForeColor       =   &H00FFFFFF&
+      Height          =   195
+      Left            =   8385
+      TabIndex        =   3
+      Top             =   8475
+      Width           =   1485
+   End
+   Begin VB.Label PNL_END 
+      Alignment       =   2  '中央揃え
+      BackStyle       =   0  '透明
+      Caption         =   "( F12 )"
+      ForeColor       =   &H00FFFFFF&
+      Height          =   195
+      Left            =   5505
+      TabIndex        =   2
+      Top             =   8475
+      Width           =   1485
+   End
+   Begin VB.Label BG_Logo 
+      Appearance      =   0  'ﾌﾗｯﾄ
+      AutoSize        =   -1  'True
+      BackColor       =   &H00C0C000&
+      BackStyle       =   0  '透明
+      Caption         =   "SIMPR-A"
+      BeginProperty Font 
+         Name            =   "ＭＳ Ｐゴシック"
+         Size            =   14.25
+         Charset         =   128
+         Weight          =   700
+         Underline       =   0   'False
+         Italic          =   -1  'True
+         Strikethrough   =   0   'False
+      EndProperty
+      ForeColor       =   &H00C00000&
+      Height          =   285
+      Index           =   0
+      Left            =   90
+      TabIndex        =   1
+      Top             =   390
+      UseMnemonic     =   0   'False
+      Visible         =   0   'False
+      Width           =   1245
+   End
+End
+Attribute VB_Name = "CTP3210"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+'**********************************************************'
+'**
+'**       フォーム名    :  新eかんばん出荷データ変換
+'**       フォームID    :  CTP3210
+'**       処理概要      :
+'**
+'**             PARA - /M or /Manual  :手動処理
+'**                    /D or /Disp    :画面表示あり(自動処理時のみ有効）
+'**                    /R00000000     :再処理 00000000:履歴管理番号
+'**
+'**       作  成  日    :   2005/11/29
+'**       変  更  日    :   2007/11/15  By CIS タイムアウト = 3600
+'**
+'**********************************************************'
+    Dim CisFrm          As CISFormContorl
+
+    Dim ProcHB          As String * 2   ' 入力域切替
+    Dim FormAct         As Boolean      ' ﾌｫｰﾑｱｸﾃｨﾌﾞ ﾌﾗｸﾞ
+'
+    Dim mSaveMsg        As String       ' ﾒｯｾｰｼﾞ
+
+    Dim ZDate           As String
+    Dim ZFSu            As Long
+    Dim ZProc           As String
+'+----------------------------------------------------------+
+'+      フォーム    《    Ｌｏａｄイベント    》              +
+'+----------------------------------------------------------+
+Private Sub Form_Load()
+'   #-------------------#
+'   # 二 重 起 動 防 止 #
+'   #-------------------#
+    If Not Dupli_Start Then End
+'   #-------------------#
+'   # 初 期 内 容 取 得 #
+'   #-------------------#
+'-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* 2007/11/15 INSERT START
+    CisDB.TimeOut = 3600
+'-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* 2007/11/15 INSERT END
+    If Not IniGet Then End
+    
+    
+    mSaveMsg = lb_msg
+'   #-------------------#
+'   #  項 目 初 期 化   #
+'   #-------------------#
+    Set CisFrm = New CISFormContorl
+    Set CisFrm.ThisForm = Me
+    Call CisFrm.InitFld
+
+    If gTantoName = "" Then
+       Head_Tanto.Visible = False
+    Else
+       Head_Tanto.Visible = True
+       Head_Tanto = gTantoName
+    End If
+
+    Dummy.Left = -1000
+    Dummy.Enabled = False
+
+    Timer1.Interval = 1000   ' 時刻表示間隔
+    Timer1.Enabled = True    ' 時刻表示開始
+    Timer2.Interval = 1000   ' 時刻表示間隔
+    Timer2.Enabled = True    ' 時刻表示開始
+
+    With CisFrm
+        Set .MSGObject = lb_msg
+        Set .MSGTimer = Timer2
+        .MSGStopCount = 10
+        .MSGType = Left_To_Right
+        .MSGText = mSaveMsg
+        .MSGInterval = 100
+        .MSGRelate
+    End With
+
+'   #-------------------#
+'   #    初期入力設定   #
+'   #-------------------#
+    ProcHB = "H1"
+    Call DispChange(ProcHB)
+'   #-------------------------#
+'   #    新eかんばん 初期値セット   #
+'   #-------------------------#
+    eKanban_Proc = 1          ' 出荷
+    eKanban_ProcKB = 1        ' 手動
+    eKanban_ProcDisp = 1      ' 画面表示あり
+    eKanban_FunFlg = False
+    
+    If InStr(1, UCase(Command), "/AUTO") <> 0 Or InStr(1, UCase(Command), "/A") <> 0 Then
+       eKanban_ProcKB = 0     ' 自動
+       eKanban_ProcDisp = 0   ' 画面表示なし
+    End If
+    If eKanban_ProcKB = 0 Then
+       If InStr(1, UCase(Command), "/DISP") <> 0 Or InStr(1, UCase(Command), "/D") <> 0 Then
+          eKanban_ProcDisp = 1   ' 画面表示あり
+       End If
+    End If
+    
+    If InStr(1, UCase(Command), "/R") <> 0 Then
+       eKanban_ProcKB = 1        ' 手動
+       eKanban_ProcDisp = 1      ' 画面表示あり
+       gStr = Replace(UCase(Command), "/R", "")
+       eKanban_Rireki = CisFun.Val2(gStr)
+    End If
+    
+    If eKanban_ProcKB = 0 Then
+        If Not eKanbanYukou Then
+           Call End_Proc
+           Exit Sub
+        End If
+        CisDB.ErrDisp = False
+    End If
+
+    If Not eKanbanIniGet Then End
+    
+'   < シングルプロセスチェック(手動) >
+    If eKanban_ProcKB <> 0 Then
+       If Not SingleProcess_Check Then Call End_Proc
+    End If
+    
+'   #-------------------#
+'   # 対象ファイル取得  #
+'   #-------------------#
+    gLong = eKanban_GetFile_Count
+    lb_FSu = Format(gLong, "#0")
+'   #-------------------#
+'   # 画面中央位置表示  #
+'   #-------------------#
+    If eKanban_ProcKB = 0 And eKanban_ProcDisp = 0 Then
+       Me.WindowState = 1
+       Me.Left = Me.Width * -1
+       Me.Top = Me.Height * -1
+    Else
+       Call CisFrm.Frm_Center(True, x1024y768)
+    
+       If gLogoDisp Then
+          BG_Logo(0).Caption = gLogo
+          CisFrm.BGLDisp BG_Logo, 10
+       End If
+    End If
+    
+    
+    Me.Show
+End Sub
+'+----------------------------------------------------------+
+'+      フォーム    《Ａｃｔｉｖａｔｅ イベント》              +
+'+----------------------------------------------------------+
+Private Sub Form_Activate()
+    If FormAct Then Exit Sub
+    FormAct = Not FormAct
+'< 前回処理日 >
+    Call ZenProc_Get
+    Hlb_ZDate = RTrim$(ZDate)
+    If Trim(ZDate) <> "" Then
+       Hlb_ZDate = Hlb_ZDate & ZProc
+    End If
+    Hlb_FSu = Format(ZFSu, "###")
+    
+' 自動処理
+    If eKanban_ProcKB = 0 Then
+       Timer1.Enabled = False
+       Timer2.Enabled = False
+       Call AutoProc
+       Call PB_END_Click
+    End If
+' 再処理
+    If eKanban_Rireki <> 0 Then
+        
+       Call ReturnPress
+       Call PB_END_Click
+    End If
+    
+End Sub
+'+----------------------------------------------------------+
+'+      フォーム    《 QueryUnloadイベント 》                +
+'+----------------------------------------------------------+
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    Cancel = 1
+    Call PB_END_Click
+End Sub
+'+----------------------------------------------------------+
+'+      フォーム    《 ＫｅｙＤｏｗｎイベント 》               +
+'+----------------------------------------------------------+
+Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
+    If Key_Acc(KeyCode, "Down", Shift) Then KeyCode = 0
+End Sub
+'+----------------------------------------------------------+
+'+      フォーム《 ファンクションキー用アクセラレータ 》       +
+'+----------------------------------------------------------+
+Private Function Key_Acc(Key_Code As Integer, IVENT As String, Shift As Integer)
+    Key_Acc = False
+
+    If Not FormAct Then Exit Function
+    If UCase(IVENT) <> "DOWN" Then Exit Function
+
+    Select Case Key_Code
+        Case vbKeyF12
+                            If PB_END.Visible Then Call PB_END_Click        '【終了】
+                            If PB_Ok.Visible Then Call PB_END_Click         '【終了】
+        Case vbKeyReturn
+                            If PB_Ent.Visible Then                          '【入力】
+   '                            Dummy.Enabled = True: Dummy.SetFocus: DoEvents
+                                Call PB_ENT_Click
+   '                            Dummy.Enabled = False
+                            End If
+        Case Else:          Exit Function
+    End Select
+
+    Key_Acc = True
+End Function
+'+----------------------------------------------------------+
+'+      フォーム    《Ｐａｉｎｔ イベント》                   +
+'+----------------------------------------------------------+
+Private Sub Form_Paint()
+'ｸﾞﾗﾃﾞｰｼｮﾝ表示
+    With CisFrm
+        .Gradation_Direction = Landscape
+        .Gradation_Shading = Lighten
+        .Gradation 0, 50, 0, 4, 2, 3
+    End With
+End Sub
+'+---------------------+
+'+    終  了  キ ー     +
+'+---------------------+
+Private Sub PB_END_Click()
+    Call SingleProcess_Release
+    
+    Call End_Proc
+End Sub
+Private Sub End_Proc()
+    Call CisDB.DBDISConnect
+    Call CisFrm.UnLoadDisp
+
+    End
+End Sub
+'+----------------------------+
+'+    確　認  キ ー(F12)       +
+'+----------------------------+
+Private Sub PB_OK_Click()
+    Call PB_END_Click
+End Sub
+'+----------------------------+
+'+    入  力  キ ー(Enter)     +
+'+----------------------------+
+Private Sub PB_ENT_Click()
+    Dummy.Enabled = True: Dummy.SetFocus: DoEvents
+    Call ReturnPress
+    Dummy.Enabled = False
+End Sub
+'*******************************
+'*      タイトルバー編集        *
+'*******************************
+Private Sub Timer1_Timer()
+   Call CisFrm.TimeSet("1")
+End Sub
+'*******************************
+'*      メッセージ表示        *
+'*******************************
+Private Sub Timer2_Timer()
+    CisFrm.MSGRelate
+End Sub
+'****************************
+'*                          *
+'*      HEAD/BODY 処理      *
+'*                          *
+'****************************
+'****************************
+'*      入力切替 処理        *
+'****************************
+Private Function DispChange(Pro As String)
+    Dim H1Mode      As Boolean
+    Dim B1Mode      As Boolean
+    Dim B2Mode      As Boolean
+
+    H1Mode = False
+    B1Mode = False
+    B2Mode = False
+' ﾀﾞﾐｰ項目(画面のチラツキ防止)
+    If Dummy.Visible Then
+       Dummy.Enabled = True
+       Dummy.SetFocus
+    End If
+'
+    Select Case Pro
+       Case "H1":   H1Mode = True
+       Case "B1":   B1Mode = True
+       Case "B2":   B2Mode = True
+    End Select
+    H1_Area1.Enabled = H1Mode
+    B1_Area1.Visible = B1Mode
+
+    PB_Ent.Visible = H1Mode
+    PNL_ENT.Visible = H1Mode
+    PB_END.Visible = H1Mode
+    PNL_END.Visible = H1Mode
+    Timer2.Enabled = H1Mode Or B2Mode
+    PB_Ok.Visible = B2Mode
+    PNL_Ok.Visible = B2Mode
+
+
+' ﾀﾞﾐｰ項目(入力禁止)
+    Dummy.Enabled = False
+'
+End Function
+'*********************************
+'*          入力処理(Enter)      *
+'*********************************
+Private Sub ReturnPress()
+    Call CisFrm.MousePT(11)
+    Static sw_Str           As String
+
+'
+    gLong = eKanban_GetFile_Count
+    lb_FSu = Format(gLong, "#0")
+    
+    If eKanban_Rireki = 0 Then
+        If CisFun.Val2(gLong) = 0 Then
+           With CisFun
+                .MB_Lines = 3
+                .MB_MSG(2) = "       処理対象ファイルがありません。              "
+                .MB_Title = "eかんばん処理"
+                .MB_Button = OK
+                Call .MBOX
+           End With
+           GoTo ReturnPress_Ee
+        End If
+    End If
+    ' eかんばん環境設定確認
+    If Not eKanbanIniCheck Then
+       If Trim(eKanban_ErrMsg) <> "" Then
+          With CisFun
+               .MB_Lines = 7
+               .MB_MSG(2) = "       新eかんばん環境設定エラー(受注)              "
+               .MB_MSG(4) = "       " & eKanban_ErrMsg
+               .MB_MSG(6) = "      新eかんばん環境設定を確認して下さい。         "
+               .MB_Title = "新eかんばん環境設定ｴﾗｰ"
+               .MB_Button = Error
+               Call .MBOX
+          End With
+       End If
+       GoTo ReturnPress_Ee
+    End If
+    
+    If eKanban_Rireki = 0 Then
+        With CisFun
+            .MB_Lines = 5
+            .MB_MSG(2) = "       処理を行います。         "
+            .MB_MSG(4) = "       よろしいですか？         "
+            .MB_Title = "新eかんばん出荷ﾃﾞｰﾀ変換処理"
+            .MB_Button = Yes_No
+            If Not .MBOX Then GoTo ReturnPress_Ee
+        End With
+    End If
+        
+    Timer2.Enabled = False
+    DoEvents
+    
+    On Error GoTo ReturnPress_Er
+    
+'------------------- 履歴処理開始
+    If Not Start_EHRInsert(eKanban_Proc, eKanban_ProcKB, CisFun.Val2(lb_FSu)) Then
+    
+       GoTo ReturnPress_Er
+    End If
+    
+    If eKanban_Rireki <> 0 Then
+        gLong = eKanban_GetFile_Count
+        lb_FSu = Format(gLong, "#0")
+        
+        If CisFun.Val2(gLong) = 0 Then
+           With CisFun
+                .MB_Lines = 3
+                .MB_MSG(2) = "       処理対象ファイルがありません。              "
+                .MB_Title = "新eかんばん処理"
+                .MB_Button = OK
+                Call .MBOX
+           End With
+           GoTo ReturnPress_Ee
+        End If
+    End If
+    
+    ' ログ出力処理開始
+    Call eKanban_LogPut("", "S")
+    
+    Call DispChange("B1")
+    '--------------------------------------
+    '------------
+    '------------       新eかんばん変換処理
+    '------------
+    '--------------------------------------
+    If Not eKanbanProc Then GoTo ReturnPress_Er
+'
+ReturnPress_D:
+'------------------------------------- 正常終了
+    ' ログ出力処理終了
+    Call eKanban_LogPut("", "E")
+'
+    gStr = "【  処　理  終  了  】"
+    lb_msg.Caption = gStr
+    Timer2.Enabled = True
+    With CisFrm
+        .MSGText = lb_msg.Caption
+        .MSGType = FSize_Changes
+        .MSGInterval = 100
+        .MSGFSizeMax = 18
+        .MSGRelate
+    End With
+    ProcHB = "B2"
+    Call DispChange(ProcHB)
+    GoTo ReturnPress_Ed
+ReturnPress_Er:
+'------------------------------------- 異常終了
+    ' ログ出力処理終了
+    Call eKanban_LogPut("", "A")
+    
+    gStr = "【  処　理  異　常　終  了  】"
+    lb_msg.Caption = gStr
+    
+    Timer2.Enabled = True
+    With CisFrm
+        .MSGText = lb_msg.Caption
+        .MSGType = FSize_Changes
+        .MSGInterval = 100
+        .MSGFSizeMax = 18
+        .MSGRelate
+    End With
+    ProcHB = "B2"
+    Call DispChange(ProcHB)
+    GoTo ReturnPress_Ed
+ReturnPress_Ee:
+'------------------------------------- 再入力
+    lb_msg = mSaveMsg
+    DoEvents
+    ProcHB = "H1"
+    Call DispChange(ProcHB)
+ReturnPress_Ed:
+    Call CisFrm.MousePT(1)
+End Sub
+'_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+'_/
+'_/
+'_/                 新eかんばん出荷データ変換処理(自動)
+'_/
+'_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+Private Sub AutoProc()
+    
+    Timer2.Enabled = False
+    
+    On Error GoTo AutoProc_Ee
+    
+    '------------------- 履歴処理開始
+    If Not Start_EHRInsert(eKanban_Proc, eKanban_ProcKB, CisFun.Val2(lb_FSu)) Then
+       GoTo AutoProc_Ee
+    End If
+    ' ログ出力処理開始
+    Call eKanban_LogPut("", "S")
+    
+    ' シングルプロセスチェック
+    If Not SingleProcess_Check Then
+        gStr = "他のパソコンで起動中です       ( " & RTrim$(SYM.英数字1) & " )"
+        Call eKanban_LogPut(gStr, "ERR")
+        
+        EHR.ERR = "04"      ' 重複起動ｴﾗｰ
+        If Not Middle_EHRUpDate Then GoTo AutoProc_Ee
+        
+        ' ログ出力処理終了
+        Call eKanban_LogPut("", "A")
+        Call End_Proc
+        Exit Sub
+    End If
+    
+    ' 新eかんばん環境設定確認
+    If Not eKanbanIniCheck Then
+        EHR.ERR = "05"      ' 環境設定ｴﾗｰ
+        If Not Middle_EHRUpDate Then GoTo AutoProc_Ee
+        GoTo AutoProc_Ee
+    End If
+    
+    ' 新eかんばんデータ確認(該当データなし)
+    If CisFun.Val2(lb_FSu) = 0 Then
+          
+        EHR.ERR = "01"
+        If Not Middle_EHRUpDate Then GoTo AutoProc_Ee
+        '+--------------------------- 今回処理日時を格納
+        Call ZenProc_Put
+         
+        gStr = "＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／"
+        Call eKanban_LogPut(gStr, , 1)
+        gStr = "'"
+        Call eKanban_LogPut(gStr, , 1)
+        gStr = "＿／       【" & eKanban_PrefixNm(eKanban_Proc) & "】処理対象ファイルなし"
+        Call eKanban_LogPut(gStr, , 1)
+        gStr = "'"
+        Call eKanban_LogPut(gStr, , 1)
+        gStr = "＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／＿／"
+        Call eKanban_LogPut(gStr, , 1)
+        gStr = "'"
+        Call eKanban_LogPut(gStr, , 1)
+    Else
+        If Not eKanbanProc Then GoTo AutoProc_Ee
+    End If
+    ' ログ出力処理終了
+    Call eKanban_LogPut("", "E")
+    Exit Sub
+AutoProc_Ee:
+    ' ログ出力処理終了
+    Call eKanban_LogPut("", "A")
+End Sub
+'*---------------------------------------------------------*
+'*                  新eかんばん変換処理                          *
+'*---------------------------------------------------------*
+Private Function eKanbanProc() As Boolean
+    On Error GoTo eKanbanProc_Er:
+    
+    eKanbanProc = False
+'-------------------  新eかんばんﾃﾞｰﾀ移動先取得
+    If Not eKanbanBackGet Then GoTo eKanbanProc_Er
+    
+    Call eKanban_LogProc(eKanban_Fun, "", "S")
+
+'-------------------  新eかんばんﾃﾞｰﾀ移動処理
+    If eKanban_Rireki = 0 Then
+       If eKanban_ProcKB <> 0 Then lb_msg.Caption = "新eかんばんﾃﾞｰﾀ移動中": DoEvents
+    
+       If Not eKanban_TextMove(Me) Then GoTo eKanbanProc_Er
+    End If
+'-------------------  新eかんばんﾃｷｽﾄｺﾝﾊﾞｰﾄ
+    If eKanban_ProcKB <> 0 Then
+        lb_msg.Caption = "新eかんばんTEXT変換中": DoEvents
+        With CisFrm
+            Set .MeterPic = Bar
+            .MeterMax = CisFun.Val2(lb_FSu)
+        End With
+        Bar.Visible = True
+        
+        Set eKanban_Frm = CisFrm
+    End If
+    
+    If Not eKanban_BULK_Insert Then GoTo eKanbanProc_Er
+'------------------   新eかんばん出荷更新処理
+    If eKanban_ProcKB <> 0 Then lb_msg.Caption = "新eかんばんﾃﾞｰﾀ更新中": DoEvents
+    
+    If Not eKanban_UpdateProc Then GoTo eKanbanProc_Er
+'------------------   今回処理内容出力
+    Call ZenProc_Put
+'------------------- 履歴ﾃﾞｰﾀ削除
+    If eKanban_DirMaxCnt = 1 Then
+       If eKanban_ProcKB <> 0 Then lb_msg.Caption = "履歴削除中": DoEvents
+       If Not eKanban_BackUpDel Then GoTo eKanbanProc_Er
+    End If
+'------------------- 変換リスト発行
+    If Not Convert_ListProc Then GoTo eKanbanProc_Er
+'-------------------  履歴出力(正常終了)
+    EHR.ERR = ""
+    If Not Middle_EHRUpDate Then GoTo eKanbanProc_Er
+    
+    eKanbanProc = True
+    Exit Function
+eKanbanProc_Er:
+
+End Function
+'*-----------------------------------------------------------------------------------------------------------*
+'*-----------------------------------------------------------------------------------------------------------*
+'*-----------------------------------------------------------------------------------------------------------*
+'*---------------                                                                             ---------------*
+'*---------------     新eかんばん　出荷変換リスト発行                                               ---------------*
+'*---------------                                                                             ---------------*
+'*-----------------------------------------------------------------------------------------------------------*
+'*-----------------------------------------------------------------------------------------------------------*
+'*-----------------------------------------------------------------------------------------------------------*
+Private Function Convert_ListProc() As Boolean
+    Dim ErrStr  As String
+    Dim KariStr As String
+    
+    
+    On Error GoTo Convert_ListProc_Er:
+    
+    Convert_ListProc = False
+    
+    If Not eKanban_CvtList(eKanban_Proc) Then
+       gStr = "☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆"
+       Call eKanban_LogPut(gStr, , 20)
+       gStr = "☆　　　　　　　　　　　　　　　　　　　　　　　　　　     　☆"
+       Call eKanban_LogPut(gStr, , 20)
+       gStr = "☆☆☆☆☆☆　　　新eかんばん出荷変換リスト発行なし　　　☆☆☆"
+       Call eKanban_LogPut(gStr, , 20)
+       gStr = "☆　　　　　　　　　　　　　　　　　　　　　　　　　　     　☆"
+       Call eKanban_LogPut(gStr, , 20)
+       gStr = "☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆"
+       Call eKanban_LogPut(gStr, , 20)
+       Convert_ListProc = True
+       Exit Function
+    End If
+    If eKanban_ProcKB <> 0 Then lb_msg.Caption = "出荷変換リスト発行": DoEvents
+    
+    ' ログ出力
+    gStr = "【 新eかんばん出荷変換リスト出力 開始 】"
+    Call eKanban_LogPut(gStr, "", 1)
+    
+    EHR.ERR = "63"      '変換リスト発行ｴﾗｰ
+    If Not Middle_EHRUpDate Then Exit Function
+
+' * 変換エラーリスト
+    eKanban_ProcYMD = Format(Now(), "YYYYMMDD")
+    
+    Call eKanban_Cvt_List
+    
+    If EHTRead(gSL_Select) Then
+        
+        lb_msg = "【 新eかんばん出荷 】 変換リスト 印刷中"
+        DoEvents
+        With eKanban_Prt
+             Set .iPrtForm = CTP3210L
+             .dpMSG = "新eかんばん出荷変換リスト　印刷中"
+             .iPreview = pv_Print
+             If eKanban_ProcKB = 0 And eKanban_ProcDisp = 0 Then
+                .dpMSGScreen = 画面なし
+             Else
+                .dpMSGScreen = モーダル
+             End If
+             
+             .PrintStart
+        End With
+    End If
+    Call EHTClose
+    
+    ' ログ出力
+    gStr = "【 新eかんばん出荷変換リスト出力 終了 】"
+    Call eKanban_LogPut(gStr, "", 1)
+    
+    Convert_ListProc = True
+    Exit Function
+Convert_ListProc_Er:
+    ReDim DispMsg(4)
+    DispMsg(0) = "   新eかんばん 変換リスト出力エラー  "
+    DispMsg(2) = "    Error No    = " & ERR
+    DispMsg(3) = "    Error Msg   = " & ERR.Description
+
+    Call eKanban_LogPut(DispMsg(0))
+    Call eKanban_LogPut(DispMsg(1))
+    Call eKanban_LogPut(DispMsg(2))
+    Call eKanban_LogPut(DispMsg(3))
+
+    If eKanban_ProcKB <> 0 Then
+       With CisFun
+            .MB_Lines = 4
+            .MB_MSG(0) = DispMsg(0)
+            .MB_MSG(1) = DispMsg(1)
+            .MB_MSG(2) = DispMsg(2)
+            .MB_MSG(3) = DispMsg(3)
+            .MB_Title = ""
+            .MB_Button = Error
+            .MBOX
+       End With
+    End If
+
+    ' ログ出力
+    gStr = "【 新eかんばん出荷変換リスト出力 異常終了 】"
+    Call eKanban_LogPut(gStr, "", 1)
+
+
+End Function
+
+
+'*---------------------------------------------------------*
+'*          シ ン グ ル プ ロ セ ス チ ェ ッ ク            *
+'*---------------------------------------------------------*
+Private Function SingleProcess_Check()
+    SingleProcess_Check = False
+    
+    Call ItemsClearSYMCreate
+    
+    With SYMCreate
+        .区分名称 = "シングルプロセス"
+        .区分桁数 = 10
+        .値 = App.EXEName
+        .制御区分 = "X"
+        .値名称 = "eかんばん出荷"
+        .作成者 = gTanto
+    End With
+    
+    Call SYMInitCreate(False)
+    
+    Call ItemsClearSYM
+    gSL_Select = "Select * From 名称マスタ "
+    gSL_Select = gSL_Select & " Where 区分名称   = 'シングルプロセス'"
+    gSL_Select = gSL_Select & " And   区分タイプ = ''"
+    gSL_Select = gSL_Select & " And   値        = '" & App.EXEName & "'"
+    Call SYMRead(gSL_Select, 1)
+    
+    If RTrim$(SYM.英数字1) <> "" And RTrim$(SYM.英数字1) <> CisFun.WSID Then
+        With CisFun
+            If eKanban_ProcKB <> 0 Then
+                .MB_Lines = 3
+                .MB_MSG(1) = "    他のパソコンで起動中です         "
+                .MB_MSG(2) = "        ( " & RTrim$(SYM.英数字1) & " )"
+                .MB_Button = Error
+                .MBOX
+            End If
+        End With
+        Exit Function
+    End If
+
+'   < プロセスのロック >
+    gSL_Select = "UpDate 名称マスタ Set"
+    gSL_Select = gSL_Select & " 英数字1 = SubString( Host_Name(), 1, 20 ),"
+    gSL_Select = gSL_Select & " 更新日 = GETDATE(),"
+    gSL_Select = gSL_Select & " 更新者 = '" & RTrim(gTanto) & "',"
+    gSL_Select = gSL_Select & " 更新端末 = SubString( Host_Name(), 1, 20 )"
+    gSL_Select = gSL_Select & " Where 区分名称 = 'シングルプロセス'"
+    gSL_Select = gSL_Select & "   And 区分タイプ = ''"
+    gSL_Select = gSL_Select & "   And 値 = '" & App.EXEName & "'"
+
+    With CisDB
+        .SQL = gSL_Select
+        .DBExec
+    End With
+
+    SingleProcess_Check = True
+End Function
+'*-------------------------------------------------*
+'*          シ ン グ ル プ ロ セ ス 解 除           *
+'*-------------------------------------------------*
+Private Function SingleProcess_Release()
+    SingleProcess_Release = False
+    
+    gSL_Select = "UpDate 名称マスタ Set"
+    gSL_Select = gSL_Select & " 英数字1 = '',"
+    gSL_Select = gSL_Select & " 英数字2 = '',"
+    gSL_Select = gSL_Select & " 更新日 = GETDATE(),"
+    gSL_Select = gSL_Select & " 更新者 = '" & RTrim(gTanto) & "',"
+    gSL_Select = gSL_Select & " 更新端末 = SubString( Host_Name(), 1, 20 )"
+    gSL_Select = gSL_Select & " Where 区分名称 = 'シングルプロセス'"
+    gSL_Select = gSL_Select & "   And 区分タイプ = ''"
+    gSL_Select = gSL_Select & "   And 値 = '" & App.EXEName & "'"
+
+    With CisDB
+        .SQL = gSL_Select
+        .DBExec
+    End With
+    
+    SingleProcess_Release = True
+End Function
+'*-------------------------------------------------*
+'*              前　回　処　理　日      ( 獲得 )
+'*-------------------------------------------------*
+Private Function ZenProc_Get()
+    ZDate = ""
+    Call ItemsClearSYMCreate
+    
+    With SYMCreate
+        .区分名称 = "eかんばん管理"
+        .区分桁数 = 2
+        .値 = "SK"
+        .制御区分 = "X"
+        .値名称 = "eかんばん出荷"
+        .作成者 = gTanto
+    End With
+    
+    Call SYMInitCreate(False)
+    
+    Call ItemsClearSYM
+    gSL_Select = "Select * From 名称マスタ "
+    gSL_Select = gSL_Select & " Where 区分名称   = 'eかんばん管理'"
+    gSL_Select = gSL_Select & " And   区分タイプ = ''"
+    gSL_Select = gSL_Select & " And   値        = 'SK'"
+    Call SYMRead(gSL_Select, 1)
+    
+    ZDate = RTrim$(SYM.英数字2)
+    If SYM.数字1 = 0 Then
+       ZProc = "(自動)"
+    Else
+       ZProc = "(手動)"
+    End If
+    If SYM.数字3 <> 0 Then
+       ZProc = "(再処理) "
+    End If
+    ZFSu = SYM.数字2
+End Function
+'*-------------------------------------------------*
+'*              前　回　処　理　日      ( 書込 )
+'*-------------------------------------------------*
+Private Function ZenProc_Put()
+
+    gSL_Select = "UpDate 名称マスタ Set"
+    gSL_Select = gSL_Select & " 英数字1 = '',"
+    gSL_Select = gSL_Select & " 英数字2 = '" & Format(Now(), "yyyy年mm月dd日 HH:MM") & "',"
+    gSL_Select = gSL_Select & " 数字1 = " & eKanban_ProcKB & ","
+    gSL_Select = gSL_Select & " 数字2 = " & CisFun.Val2(lb_FSu) & ","
+    gSL_Select = gSL_Select & " 数字3 = " & eKanban_Rireki & ","
+    gSL_Select = gSL_Select & " 更新日 = GETDATE(),"
+    gSL_Select = gSL_Select & " 更新者 = '" & RTrim(gTanto) & "',"
+    gSL_Select = gSL_Select & " 更新端末 = SubString( Host_Name(), 1, 20 )"
+    gSL_Select = gSL_Select & " Where 区分名称 = 'eかんばん管理'"
+    gSL_Select = gSL_Select & "   And 区分タイプ = ''"
+    gSL_Select = gSL_Select & "   And 値 = 'SK'"
+
+    With CisDB
+        .SQL = gSL_Select
+        .DBExec
+    End With
+
+End Function
+
+
