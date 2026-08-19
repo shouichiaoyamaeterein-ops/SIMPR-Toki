@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>売上実績処理が止まる理由（説明図）</title>
+<style>
+  :root{
+    --bg:#F7F6F2; --card:#FFFFFF; --ink:#232A33; --muted:#6A7280;
+    --line:#D6D9DE; --accent:#2E5E9E; --accent-soft:#E8EFF8;
+    --ng:#C24A2E; --ng-soft:#F9ECE7; --ng-line:#E0A895;
+    --ok:#2F7D5B; --ok-soft:#E7F2EC; --ok-line:#9CC6B2;
+    --warn:#B4802A; --warn-soft:#FBF2E0; --warn-line:#DCC28A;
+    --grid:#EDEFF2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14181D; --card:#1C222A; --ink:#E6EAF0; --muted:#98A1AC;
+      --line:#39414B; --accent:#7FA8DC; --accent-soft:#243447;
+      --ng:#E08066; --ng-soft:#3A2620; --ng-line:#7A4938;
+      --ok:#6FBF97; --ok-soft:#1E3129; --ok-line:#3E6B55;
+      --warn:#D9AE5F; --warn-soft:#332A18; --warn-line:#6B5730;
+      --grid:#242B33;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Yu Gothic UI","Hiragino Sans","Meiryo",system-ui,sans-serif;
+    font-size:13.5px; line-height:1.75; margin:0;
+  }
+  .page{max-width:1000px; margin:0 auto; padding:36px 20px 64px}
+
+  header.doc{border-bottom:2px solid var(--ink); padding-bottom:14px; margin-bottom:22px}
+  .eyebrow{font-size:11.5px; letter-spacing:.14em; color:var(--muted); margin:0 0 6px}
+  h1{font-size:22px; line-height:1.45; margin:0; text-wrap:balance}
+  .meta{display:flex; flex-wrap:wrap; gap:6px 18px; font-size:11.5px; color:var(--muted); margin-top:8px}
+  .meta b{color:var(--ink); font-weight:600}
+
+  h2{
+    font-size:15.5px; margin:34px 0 12px; padding-left:11px;
+    border-left:4px solid var(--accent); line-height:1.5;
+  }
+  h3{font-size:13.5px; margin:20px 0 8px; color:var(--muted); font-weight:700; letter-spacing:.04em}
+  p{margin:0 0 10px}
+
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:18px 20px; margin:14px 0;
+  }
+  .fig{
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:14px 12px; margin:14px 0; overflow-x:auto;
+  }
+  .fig svg{display:block; width:100%; height:auto; min-width:640px}
+  .figcap{font-size:11.5px; color:var(--muted); margin:8px 4px 2px; text-align:center}
+
+  .verdict{
+    background:var(--ng-soft); border:1px solid var(--ng-line); border-left:5px solid var(--ng);
+    border-radius:10px; padding:16px 20px; margin:18px 0;
+  }
+  .verdict .lead{font-size:11.5px; letter-spacing:.12em; color:var(--ng); font-weight:700; margin:0 0 4px}
+  .verdict .body{font-size:15px; font-weight:700; line-height:1.6; margin:0}
+  .verdict .sub{font-size:12.5px; color:var(--muted); margin:8px 0 0; font-weight:400}
+
+  .note{
+    background:var(--warn-soft); border:1px solid var(--warn-line); border-left:5px solid var(--warn);
+    border-radius:10px; padding:14px 18px; margin:14px 0;
+  }
+  .note .t{font-weight:700; color:var(--warn); font-size:12.5px; margin:0 0 6px; letter-spacing:.04em}
+
+  .good{
+    background:var(--ok-soft); border:1px solid var(--ok-line); border-left:5px solid var(--ok);
+    border-radius:10px; padding:14px 18px; margin:14px 0;
+  }
+  .good .t{font-weight:700; color:var(--ok); font-size:12.5px; margin:0 0 6px; letter-spacing:.04em}
+
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:14px 0}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.06em; margin:0 0 4px}
+  .stat .v{font-size:22px; font-weight:700; line-height:1.2; font-variant-numeric:tabular-nums; margin:0}
+  .stat .u{font-size:11.5px; color:var(--muted); font-weight:400; margin-left:3px}
+  .stat.ngv .v{color:var(--ng)}
+
+  table{border-collapse:collapse; width:100%; font-size:12.5px; margin:12px 0}
+  th,td{border:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top}
+  th{background:var(--accent-soft); font-weight:700; white-space:nowrap}
+  td.num{text-align:right; font-variant-numeric:tabular-nums}
+  code{
+    font-family:"Consolas","SFMono-Regular",monospace; font-size:12px;
+    background:var(--grid); padding:1px 5px; border-radius:4px;
+  }
+  ol,ul{margin:6px 0 10px; padding-left:1.4em}
+  li{margin:3px 0}
+  .tagline{font-size:11.5px; color:var(--muted); margin:-4px 0 12px}
+
+  footer.doc{margin-top:44px; padding-top:14px; border-top:1px solid var(--line); font-size:11.5px; color:var(--muted)}
+
+  @media print{
+    body{background:#fff}
+    .page{padding:0}
+    .card,.fig,.verdict,.note,.good,.stat{break-inside:avoid}
+    h2{break-after:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="doc">
+  <p class="eyebrow">SIMPR-A ／ 説明図（ポンチ絵）</p>
+  <h1>売上実績処理が「主キー重複」で止まる理由</h1>
+  <div class="meta">
+    <span>対象年月 <b>2026年 7月度</b></span>
+    <span>契約先 <b>1048 アキタ株式会社</b></span>
+    <span>画面 <b>CXU0110 売上実績処理</b></span>
+    <span>作成 <b>2026/08/13</b></span>
+  </div>
+</header>
+
+<div class="verdict">
+  <p class="lead">結論</p>
+  <p class="body">品番取引先マスタの登録漏れが原因です。<br>
+  マスタが無い状態で処理が走ってできた「不完全な売上実績 25件」が、<br>
+  マスタを直した後も削除できずに残り、同じ伝票を再登録しようとして衝突しています。</p>
+  <p class="sub">残骸25件を手動で削除してから再処理すれば復旧します。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>1. 画面に出た2つのエラーの関係</h2>
+<p class="tagline">2つ出ていますが、原因は左だけです。右は「エラーの後片付け」で出ているものです。</p>
+
+<div class="fig">
+<svg viewBox="0 0 960 250" role="img" aria-label="エラー①がエラー②を引き起こす関係図">
+  <defs>
+    <marker id="ar-ng" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--ng)"/>
+    </marker>
+  </defs>
+
+  <!-- error 1 -->
+  <rect x="20" y="30" width="380" height="150" rx="10" fill="var(--ng-soft)" stroke="var(--ng)" stroke-width="2"/>
+  <rect x="20" y="30" width="380" height="30" rx="10" fill="var(--ng)"/>
+  <rect x="20" y="50" width="380" height="10" fill="var(--ng)"/>
+  <text x="34" y="51" font-size="13" font-weight="700" fill="#fff">① Stored Error</text>
+  <text x="386" y="51" font-size="13" font-weight="700" fill="#fff" text-anchor="end">本命</text>
+  <text x="38" y="86" font-size="13" font-weight="700" fill="var(--ink)">PRIMARY KEY 違反</text>
+  <text x="38" y="110" font-size="12" fill="var(--ink)">売上実績テーブルに同じキーの行を</text>
+  <text x="38" y="130" font-size="12" fill="var(--ink)">2回登録しようとした</text>
+  <rect x="38" y="142" width="300" height="26" rx="5" fill="var(--card)" stroke="var(--ng-line)"/>
+  <text x="50" y="160" font-size="12.5" font-weight="700" fill="var(--ng)" font-family="Consolas,monospace">(1196362, 3, 202607)</text>
+
+  <!-- arrow -->
+  <line x1="410" y1="105" x2="545" y2="105" stroke="var(--ng)" stroke-width="2.5" marker-end="url(#ar-ng)"/>
+  <text x="477" y="94" font-size="11.5" fill="var(--muted)" text-anchor="middle">異常終了した後に</text>
+  <text x="477" y="128" font-size="11.5" fill="var(--muted)" text-anchor="middle">戻り値を読みに行く</text>
+
+  <!-- error 2 -->
+  <rect x="560" y="30" width="380" height="150" rx="10" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+  <rect x="560" y="30" width="380" height="30" rx="10" fill="var(--muted)"/>
+  <rect x="560" y="50" width="380" height="10" fill="var(--muted)"/>
+  <text x="574" y="51" font-size="13" font-weight="700" fill="#fff">② 実行時エラー 91</text>
+  <text x="926" y="51" font-size="13" font-weight="700" fill="#fff" text-anchor="end">二次</text>
+  <text x="578" y="86" font-size="13" font-weight="700" fill="var(--muted)">オブジェクト変数未設定</text>
+  <text x="578" y="110" font-size="12" fill="var(--muted)">①でストアドが落ちたため、</text>
+  <text x="578" y="130" font-size="12" fill="var(--muted)">受け取るはずの値が無かった</text>
+  <text x="578" y="160" font-size="12" font-weight="700" fill="var(--ok)">→ ①を直せば出なくなります</text>
+
+  <rect x="20" y="200" width="920" height="34" rx="8" fill="var(--accent-soft)" stroke="var(--line)"/>
+  <text x="480" y="222" font-size="12.5" fill="var(--ink)" text-anchor="middle">調べるべきは ① の「なぜ同じキーを2回登録しようとしたのか」だけです</text>
+</svg>
+<p class="figcap">図1. エラー①が本命、エラー②はその後始末で出る二次エラー</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. 売上実績はどう作られるか（正常時と今回）</h2>
+<p class="tagline">出荷データから売上実績を作る際、<b>品番取引先マスタ</b>を経由して「契約先」を決めます。ここが引けないと連鎖的に壊れます。</p>
+
+<div class="fig">
+<svg viewBox="0 0 960 420" role="img" aria-label="正常時と異常時のデータの流れの比較">
+  <defs>
+    <marker id="ar-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--ok)"/>
+    </marker>
+    <marker id="ar-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--ng)"/>
+    </marker>
+  </defs>
+
+  <!-- ===== lane A : normal ===== -->
+  <rect x="10" y="14" width="940" height="176" rx="10" fill="var(--ok-soft)" stroke="var(--ok-line)"/>
+  <text x="26" y="38" font-size="12.5" font-weight="700" fill="var(--ok)">正常（マスタが登録されている）</text>
+
+  <g font-size="11.5" fill="var(--ink)">
+    <rect x="26" y="52" width="104" height="52" rx="7" fill="var(--card)" stroke="var(--ok-line)"/>
+    <text x="78" y="74" text-anchor="middle" font-weight="700">出荷テーブル</text>
+    <text x="78" y="92" text-anchor="middle" font-size="10.5" fill="var(--muted)">出荷指示書NO</text>
+
+    <line x1="132" y1="78" x2="158" y2="78" stroke="var(--ok)" stroke-width="2" marker-end="url(#ar-ok)"/>
+
+    <rect x="162" y="52" width="104" height="52" rx="7" fill="var(--card)" stroke="var(--ok-line)"/>
+    <text x="214" y="74" text-anchor="middle" font-weight="700">受注テーブル</text>
+    <text x="214" y="92" text-anchor="middle" font-size="10.5" fill="var(--muted)">品番・納入先・受入</text>
+
+    <line x1="268" y1="78" x2="294" y2="78" stroke="var(--ok)" stroke-width="2" marker-end="url(#ar-ok)"/>
+
+    <rect x="298" y="46" width="150" height="64" rx="7" fill="var(--card)" stroke="var(--ok)" stroke-width="2"/>
+    <text x="373" y="68" text-anchor="middle" font-weight="700">品番取引先マスタ</text>
+    <text x="373" y="86" text-anchor="middle" font-size="10.5" fill="var(--muted)">登録あり ✓</text>
+    <text x="373" y="102" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ok)">契約先 = 1048</text>
+
+    <line x1="450" y1="78" x2="476" y2="78" stroke="var(--ok)" stroke-width="2" marker-end="url(#ar-ok)"/>
+
+    <rect x="480" y="46" width="140" height="64" rx="7" fill="var(--card)" stroke="var(--ok-line)"/>
+    <text x="550" y="68" text-anchor="middle" font-weight="700">取引先マスタ</text>
+    <text x="550" y="86" text-anchor="middle" font-size="10.5" fill="var(--muted)">締日 31</text>
+    <text x="550" y="102" text-anchor="middle" font-size="10.5" fill="var(--muted)">計算単位 1（切上げ）</text>
+
+    <line x1="622" y1="78" x2="648" y2="78" stroke="var(--ok)" stroke-width="2" marker-end="url(#ar-ok)"/>
+
+    <rect x="652" y="46" width="278" height="64" rx="7" fill="var(--card)" stroke="var(--ok)" stroke-width="2"/>
+    <text x="791" y="68" text-anchor="middle" font-weight="700">売上実績テーブル</text>
+    <text x="791" y="90" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ok)">契約先 1048 ／ 締日 31 ／ 金額 2,348円</text>
+  </g>
+  <text x="26" y="132" font-size="11.5" fill="var(--muted)">同じ伝票が2回来ても「契約先」で照合できるので、2回目は集計（更新）に回り、二重登録になりません。</text>
+  <rect x="26" y="144" width="904" height="32" rx="6" fill="var(--card)" stroke="var(--ok-line)"/>
+  <text x="40" y="165" font-size="11.5" fill="var(--ink)">照合条件 …… <tspan font-family="Consolas,monospace" font-weight="700">契約先 = '1048'</tspan> <tspan fill="var(--ok)" font-weight="700">→ 一致する → 更新（安全）</tspan></text>
+
+  <!-- ===== lane B : broken ===== -->
+  <rect x="10" y="210" width="940" height="196" rx="10" fill="var(--ng-soft)" stroke="var(--ng-line)"/>
+  <text x="26" y="234" font-size="12.5" font-weight="700" fill="var(--ng)">今回（8/5 10:16 時点・マスタが未登録だった）</text>
+
+  <g font-size="11.5" fill="var(--ink)">
+    <rect x="26" y="248" width="104" height="52" rx="7" fill="var(--card)" stroke="var(--ng-line)"/>
+    <text x="78" y="270" text-anchor="middle" font-weight="700">出荷テーブル</text>
+    <text x="78" y="288" text-anchor="middle" font-size="10.5" fill="var(--muted)">1196362 / 3</text>
+
+    <line x1="132" y1="274" x2="158" y2="274" stroke="var(--ng)" stroke-width="2" marker-end="url(#ar-bad)"/>
+
+    <rect x="162" y="248" width="104" height="52" rx="7" fill="var(--card)" stroke="var(--ng-line)"/>
+    <text x="214" y="270" text-anchor="middle" font-weight="700">受注テーブル</text>
+    <text x="214" y="288" text-anchor="middle" font-size="10.5" fill="var(--muted)">6143190K00 / 1048</text>
+
+    <line x1="268" y1="274" x2="294" y2="274" stroke="var(--ng)" stroke-width="2" marker-end="url(#ar-bad)"/>
+
+    <rect x="298" y="242" width="150" height="64" rx="7" fill="var(--card)" stroke="var(--ng)" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <text x="373" y="264" text-anchor="middle" font-weight="700" fill="var(--ng)">品番取引先マスタ</text>
+    <text x="373" y="282" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--ng)">★ 未登録</text>
+    <text x="373" y="298" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ng)">契約先 = NULL</text>
+
+    <line x1="450" y1="274" x2="476" y2="274" stroke="var(--ng)" stroke-width="2" marker-end="url(#ar-bad)"/>
+
+    <rect x="480" y="242" width="140" height="64" rx="7" fill="var(--card)" stroke="var(--ng)" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="550" y="264" text-anchor="middle" font-weight="700" fill="var(--ng)">取引先マスタ</text>
+    <text x="550" y="282" text-anchor="middle" font-size="10.5" fill="var(--ng)">引けない</text>
+    <text x="550" y="298" text-anchor="middle" font-size="10.5" fill="var(--ng)">締日・計算単位も NULL</text>
+
+    <line x1="622" y1="274" x2="648" y2="274" stroke="var(--ng)" stroke-width="2" marker-end="url(#ar-bad)"/>
+
+    <rect x="652" y="242" width="278" height="64" rx="7" fill="var(--card)" stroke="var(--ng)" stroke-width="2.5"/>
+    <text x="791" y="264" text-anchor="middle" font-weight="700" fill="var(--ng)">売上実績テーブル（不完全な行）</text>
+    <text x="791" y="286" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ng)">契約先 NULL ／ 締日 NULL ／ 金額 0円</text>
+  </g>
+  <text x="26" y="330" font-size="11.5" fill="var(--ink)">計算単位が NULL だと金額計算の条件分岐がすべて成立せず、<tspan font-weight="700" fill="var(--ng)">金額は0円のまま</tspan>登録されます。</text>
+  <rect x="26" y="342" width="904" height="50" rx="6" fill="var(--card)" stroke="var(--ng-line)"/>
+  <text x="40" y="362" font-size="11.5" fill="var(--ink)">照合条件 …… <tspan font-family="Consolas,monospace" font-weight="700">契約先 = NULL</tspan> <tspan fill="var(--ng)" font-weight="700">→ 絶対に一致しない → 必ず新規登録に回る</tspan></text>
+  <text x="40" y="381" font-size="11" fill="var(--muted)">※ SQL では NULL との等値比較は「不明」となり、常に不成立になります（重複回避が効かない状態）</text>
+</svg>
+<p class="figcap">図2. 品番取引先マスタが引けないと、契約先・締日・金額のすべてが連鎖的に壊れる</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. いつ何が起きたか</h2>
+
+<div class="fig">
+<svg viewBox="0 0 960 260" role="img" aria-label="発生から現在までの時系列">
+  <line x1="60" y1="120" x2="910" y2="120" stroke="var(--line)" stroke-width="3"/>
+
+  <!-- 1 -->
+  <circle cx="110" cy="120" r="9" fill="var(--accent)"/>
+  <text x="110" y="98" font-size="11.5" font-weight="700" fill="var(--ink)" text-anchor="middle">7/1〜7/6</text>
+  <rect x="24" y="140" width="172" height="66" rx="8" fill="var(--card)" stroke="var(--line)"/>
+  <text x="110" y="162" font-size="11.5" fill="var(--ink)" text-anchor="middle">アキタ向けに出荷</text>
+  <text x="110" y="180" font-size="11" fill="var(--muted)" text-anchor="middle">5品番 / 25伝票</text>
+  <text x="110" y="196" font-size="11" fill="var(--muted)" text-anchor="middle">※マスタは未登録のまま</text>
+
+  <!-- 2 -->
+  <circle cx="330" cy="120" r="11" fill="var(--ng)"/>
+  <text x="330" y="98" font-size="11.5" font-weight="700" fill="var(--ng)" text-anchor="middle">8/5 10:16</text>
+  <rect x="238" y="140" width="184" height="66" rx="8" fill="var(--ng-soft)" stroke="var(--ng)"/>
+  <text x="330" y="162" font-size="11.5" font-weight="700" fill="var(--ng)" text-anchor="middle">売上実績処理を実行</text>
+  <text x="330" y="180" font-size="11" fill="var(--ink)" text-anchor="middle">契約先NULL・金額0の</text>
+  <text x="330" y="196" font-size="11" font-weight="700" fill="var(--ng)" text-anchor="middle">残骸 25件が作られる</text>
+
+  <!-- 3 -->
+  <circle cx="560" cy="120" r="11" fill="var(--ok)"/>
+  <text x="560" y="98" font-size="11.5" font-weight="700" fill="var(--ok)" text-anchor="middle">8/5 10:56</text>
+  <rect x="470" y="140" width="180" height="66" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>
+  <text x="560" y="162" font-size="11.5" font-weight="700" fill="var(--ok)" text-anchor="middle">マスタを登録</text>
+  <text x="560" y="180" font-size="11" fill="var(--ink)" text-anchor="middle">品番取引先マスタに</text>
+  <text x="560" y="196" font-size="11" fill="var(--ink)" text-anchor="middle">1048 / 01 を追加</text>
+
+  <!-- 4 -->
+  <circle cx="810" cy="120" r="11" fill="var(--ng)"/>
+  <text x="810" y="98" font-size="11.5" font-weight="700" fill="var(--ng)" text-anchor="middle">その後</text>
+  <rect x="712" y="140" width="196" height="66" rx="8" fill="var(--ng-soft)" stroke="var(--ng)" stroke-width="2"/>
+  <text x="810" y="162" font-size="11.5" font-weight="700" fill="var(--ng)" text-anchor="middle">再処理 → PK違反で中断</text>
+  <text x="810" y="180" font-size="11" fill="var(--ink)" text-anchor="middle">残骸25件が消えないまま</text>
+  <text x="810" y="196" font-size="11" fill="var(--ink)" text-anchor="middle">同じキーで登録しようとする</text>
+
+  <!-- gap highlight -->
+  <rect x="330" y="42" width="230" height="26" rx="6" fill="var(--warn-soft)" stroke="var(--warn-line)"/>
+  <text x="445" y="60" font-size="11.5" font-weight="700" fill="var(--warn)" text-anchor="middle">この40分間の実行が残骸を作った</text>
+  <line x1="330" y1="68" x2="330" y2="109" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <line x1="560" y1="68" x2="560" y2="109" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="4 3"/>
+</svg>
+<p class="figcap">図3. マスタ登録の40分前に処理が走ったことが、すべての起点</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>4. なぜ「マスタを直したのに再処理で直らない」のか</h2>
+<p class="tagline">ここが本件の核心です。<b>消す条件</b>と<b>作る条件</b>の判定基準がズレているため、消せないのに作りに行きます。</p>
+
+<div class="fig">
+<svg viewBox="0 0 960 430" role="img" aria-label="削除条件と取得条件の非対称によるデッドロック">
+  <defs>
+    <marker id="ar-dn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/>
+    </marker>
+  </defs>
+
+  <!-- input -->
+  <rect x="330" y="12" width="300" height="42" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>
+  <text x="480" y="32" font-size="12" font-weight="700" fill="var(--ink)" text-anchor="middle">画面で「契約先 = 1048」を指定して再処理</text>
+  <text x="480" y="48" font-size="10.5" fill="var(--muted)" text-anchor="middle">→ 内部の絞り込み条件は 1048% になる</text>
+
+  <line x1="330" y1="54" x2="240" y2="86" stroke="var(--ink)" stroke-width="1.6" marker-end="url(#ar-dn)"/>
+  <line x1="630" y1="54" x2="722" y2="86" stroke="var(--ink)" stroke-width="1.6" marker-end="url(#ar-dn)"/>
+
+  <!-- LEFT : delete -->
+  <rect x="16" y="92" width="440" height="196" rx="10" fill="var(--card)" stroke="var(--ng)" stroke-width="2"/>
+  <rect x="16" y="92" width="440" height="32" rx="10" fill="var(--ng)"/>
+  <rect x="16" y="112" width="440" height="12" fill="var(--ng)"/>
+  <text x="236" y="114" font-size="12.5" font-weight="700" fill="#fff" text-anchor="middle">① 消す側（古い行を削除する処理）</text>
+
+  <text x="36" y="150" font-size="11.5" fill="var(--muted)">残骸の契約先は NULL → 判定では空文字として扱われる</text>
+  <rect x="36" y="160" width="400" height="34" rx="6" fill="var(--grid)"/>
+  <text x="52" y="182" font-size="12.5" font-weight="700" fill="var(--ink)" font-family="Consolas,monospace">'' LIKE '1048%'</text>
+  <text x="420" y="182" font-size="13" font-weight="700" fill="var(--ng)" text-anchor="end">偽</text>
+
+  <rect x="36" y="206" width="400" height="62" rx="8" fill="var(--ng-soft)" stroke="var(--ng-line)"/>
+  <text x="236" y="230" font-size="13.5" font-weight="700" fill="var(--ng)" text-anchor="middle">残骸25件は削除されない</text>
+  <text x="236" y="252" font-size="11.5" fill="var(--ink)" text-anchor="middle">締日でも同じ（NULL → 0 と扱われ、31指定から外れる）</text>
+
+  <!-- RIGHT : cursor -->
+  <rect x="504" y="92" width="440" height="196" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/>
+  <rect x="504" y="92" width="440" height="32" rx="10" fill="var(--accent)"/>
+  <rect x="504" y="112" width="440" height="12" fill="var(--accent)"/>
+  <text x="724" y="114" font-size="12.5" font-weight="700" fill="#fff" text-anchor="middle">② 作る側（出荷から売上を作る処理）</text>
+
+  <text x="524" y="150" font-size="11.5" fill="var(--muted)">マスタ登録済みなので契約先は 1048 が引ける</text>
+  <rect x="524" y="160" width="400" height="34" rx="6" fill="var(--grid)"/>
+  <text x="540" y="182" font-size="12.5" font-weight="700" fill="var(--ink)" font-family="Consolas,monospace">'1048' LIKE '1048%'</text>
+  <text x="908" y="182" font-size="13" font-weight="700" fill="var(--accent)" text-anchor="end">真</text>
+
+  <rect x="524" y="206" width="400" height="62" rx="8" fill="var(--accent-soft)" stroke="var(--line)"/>
+  <text x="724" y="230" font-size="13.5" font-weight="700" fill="var(--accent)" text-anchor="middle">同じ出荷を対象にして登録しに行く</text>
+  <text x="724" y="252" font-size="11.5" fill="var(--ink)" text-anchor="middle">照合先の残骸は契約先NULLなので見つけられない</text>
+
+  <!-- collide -->
+  <line x1="236" y1="288" x2="380" y2="322" stroke="var(--ng)" stroke-width="2" marker-end="url(#ar-dn)"/>
+  <line x1="724" y1="288" x2="580" y2="322" stroke="var(--ng)" stroke-width="2" marker-end="url(#ar-dn)"/>
+
+  <rect x="250" y="330" width="460" height="86" rx="10" fill="var(--ng-soft)" stroke="var(--ng)" stroke-width="2.5"/>
+  <text x="480" y="356" font-size="14" font-weight="700" fill="var(--ng)" text-anchor="middle">同じ主キーが2つ ＝ PRIMARY KEY 違反</text>
+  <rect x="330" y="366" width="300" height="28" rx="5" fill="var(--card)" stroke="var(--ng-line)"/>
+  <text x="480" y="385" font-size="12.5" font-weight="700" fill="var(--ng)" text-anchor="middle" font-family="Consolas,monospace">(1196362, 3, 202607)</text>
+  <text x="480" y="410" font-size="11.5" fill="var(--ink)" text-anchor="middle">「消せないのに作りに行く」ので、何度再処理しても同じ場所で止まります</text>
+</svg>
+<p class="figcap">図4. 消す条件と作る条件の判定基準がズレている（デッドロック状態）</p>
+</div>
+
+<div class="good">
+  <p class="t">補足：この事実から分かること</p>
+  <p style="margin:0">マスタが未登録のままなら、消す条件と作る条件は<b>まったく同じ式</b>になります。つまり「作りに行く行は必ず消える」ので、そもそもエラーになりません。<b>エラーが出ている＝マスタは既に登録済み</b>だった、と論理的に確定できます。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>5. 影響</h2>
+
+<div class="stats">
+  <div class="stat ngv"><p class="k">不完全な売上実績</p><p class="v">25<span class="u">件</span></p></div>
+  <div class="stat ngv"><p class="k">うち金額0円</p><p class="v">25<span class="u">件</span></p></div>
+  <div class="stat ngv"><p class="k">計上漏れ（概算）</p><p class="v">124,429<span class="u">円</span></p></div>
+  <div class="stat"><p class="k">対象品番</p><p class="v">5<span class="u">品番</span></p></div>
+</div>
+
+<div class="card">
+<p style="margin:0 0 8px"><b>主キー重複で止まっていること以上に、金額の誤りが問題です。</b></p>
+<table>
+  <thead><tr><th>品番</th><th class="num">件数</th><th class="num">単価</th><th>状態</th></tr></thead>
+  <tbody>
+    <tr><td>6143190K00</td><td class="num">6</td><td class="num">234.81</td><td>金額 0円で計上</td></tr>
+    <tr><td>6143290K00</td><td class="num">4</td><td class="num">235.61</td><td>金額 0円で計上</td></tr>
+    <tr><td>5766360041</td><td class="num">5</td><td class="num">248.36</td><td>金額 0円で計上</td></tr>
+    <tr><td>5559860010</td><td class="num">5</td><td class="num">53.97</td><td>金額 0円で計上</td></tr>
+    <tr><td>6195636040</td><td class="num">5</td><td class="num">15.74</td><td>金額 0円で計上</td></tr>
+    <tr><td><b>計</b></td><td class="num"><b>25</b></td><td class="num">—</td><td><b>本来 124,429円</b></td></tr>
+  </tbody>
+</table>
+<p style="margin:8px 0 0; font-size:12px; color:var(--muted)">※ 単価は正しく取得できています（単価決定は契約先を使わないため）。壊れているのは契約先・締日・金額です。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>6. 復旧の流れ</h2>
+
+<div class="fig">
+<svg viewBox="0 0 960 200" role="img" aria-label="復旧の4ステップ">
+  <defs>
+    <marker id="ar-step" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <g>
+    <rect x="16" y="40" width="200" height="104" rx="10" fill="var(--card)" stroke="var(--line)"/>
+    <circle cx="46" cy="68" r="15" fill="var(--accent)"/>
+    <text x="46" y="73" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+    <text x="70" y="73" font-size="13" font-weight="700" fill="var(--ink)">バックアップ</text>
+    <text x="34" y="102" font-size="11.5" fill="var(--muted)">売上実績・売上明細の</text>
+    <text x="34" y="120" font-size="11.5" fill="var(--muted)">202607分を退避</text>
+    <line x1="220" y1="92" x2="244" y2="92" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-step)"/>
+  </g>
+  <g>
+    <rect x="248" y="40" width="200" height="104" rx="10" fill="var(--ng-soft)" stroke="var(--ng)" stroke-width="2"/>
+    <circle cx="278" cy="68" r="15" fill="var(--ng)"/>
+    <text x="278" y="73" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+    <text x="302" y="73" font-size="13" font-weight="700" fill="var(--ng)">残骸を削除</text>
+    <text x="266" y="102" font-size="11.5" fill="var(--ink)">契約先NULLの</text>
+    <text x="266" y="120" font-size="11.5" font-weight="700" fill="var(--ng)">25件を削除</text>
+    <line x1="452" y1="92" x2="476" y2="92" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-step)"/>
+  </g>
+  <g>
+    <rect x="480" y="40" width="212" height="104" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+    <circle cx="510" cy="68" r="15" fill="var(--accent)"/>
+    <text x="510" y="73" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+    <text x="534" y="73" font-size="13" font-weight="700" fill="var(--accent)">再処理を実行</text>
+    <text x="498" y="100" font-size="11.5" fill="var(--ink)">契約先 1048 ／ 締日 全て</text>
+    <text x="498" y="120" font-size="11.5" font-weight="700" fill="var(--ng)">必ず「再処理」を選択</text>
+    <line x1="696" y1="92" x2="720" y2="92" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-step)"/>
+  </g>
+  <g>
+    <rect x="724" y="40" width="220" height="104" rx="10" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="2"/>
+    <circle cx="754" cy="68" r="15" fill="var(--ok)"/>
+    <text x="754" y="73" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+    <text x="778" y="73" font-size="13" font-weight="700" fill="var(--ok)">確認</text>
+    <text x="742" y="100" font-size="11.5" fill="var(--ink)">契約先NULL が 0件</text>
+    <text x="742" y="120" font-size="11.5" fill="var(--ink)">金額が正しく計上された</text>
+  </g>
+
+  <rect x="16" y="158" width="928" height="30" rx="6" fill="var(--warn-soft)" stroke="var(--warn-line)"/>
+  <text x="480" y="178" font-size="11.5" font-weight="700" fill="var(--warn)" text-anchor="middle">「新規」では対象0件になり何も起きません。出荷側は全件処理済みのため、必ず「再処理」で実行してください。</text>
+</svg>
+<p class="figcap">図5. 復旧の4ステップ（詳細は 復旧手順SQL_202607.sql）</p>
+</div>
+
+<div class="note">
+  <p class="t">⚠ 実行前に確認が必要な点</p>
+  <ul style="margin:0">
+    <li><b>手入力の売上実績19件との重なり</b> … 手入力行は再処理では削除されません。当月出荷とキーが重なっていると、残骸を消しても<b>別の主キー重複で再び止まります</b>。</li>
+    <li><b>手入力が応急計上だった場合の二重計上</b> … 「処理が通らないので手入力した」ものであれば、復旧で自動作成分が入ると二重になります。</li>
+    <li><b>残り4品番のマスタ登録状況</b> … 確認できているのは 6143190K00 の1品番だけです。</li>
+  </ul>
+  <p style="margin:8px 0 0">→ <b>復旧前確認SQL_202607.sql</b> を先に実行してください（すべて参照のみ）。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>7. 再発防止</h2>
+
+<div class="card">
+<h3>運用でできること（すぐ）</h3>
+<p style="margin:0 0 10px">締め処理の<b>前</b>に「品番取引先マスタが引けない出荷」を洗い出します。新規品番や納入先変更のたびに同じ事象が起きうるため、月次チェックの仕組み化を推奨します。</p>
+
+<h3>プログラム改修（ご提案）</h3>
+<table>
+  <thead><tr><th>案</th><th>内容</th><th>効果</th></tr></thead>
+  <tbody>
+    <tr><td><b>案1</b></td><td>契約先が引けない出荷を処理対象から外し、処理前に一覧表示する</td><td>金額0での誤計上と残骸生成を根本から防ぐ</td></tr>
+    <tr><td><b>案2</b></td><td>再処理の削除条件を見直し、契約先NULLの行も削除対象に含める</td><td>残骸が残らず、再処理だけで復旧できる</td></tr>
+    <tr><td><b>案3</b></td><td>照合条件のNULL比較を修正する</td><td>マスタ未整備でも二重登録しない</td></tr>
+    <tr><td><b>案4</b></td><td>エラー時にストアドのエラー内容を画面に表示する</td><td>「実行時エラー91」ではなく原因が分かる</td></tr>
+  </tbody>
+</table>
+<p style="margin:8px 0 0"><b>案1 ＋ 案2</b> の組合せで、「マスタ漏れがあっても壊れない・自力で直せる」状態になります。</p>
+</div>
+
+<footer class="doc">
+  SIMPR-A ／ 売上実績処理 主キー重複 説明図　2026/08/13 作成<br>
+  詳細は <b>調査報告書_売上実績処理PK違反.md</b>／確認SQL・復旧手順は同フォルダ内の .sql をご参照ください。
+</footer>
+
+</div>
+</body>
+</html>

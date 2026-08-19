@@ -1,0 +1,65 @@
+QRコード デコード結果  (qr_sample.png / OpenCV 4.13)
+チケット: 納入番号 A0120-1/11  納入日 2026/08/07  受入 K2
+総バイト数: 350
+
+■ エスケープ表記（RS= レコード区切り / GS= フィールド区切り / EOT=）
+'[)>\x1e06\x1d6V0437\x1d11V0\x1d20L\x1d2L400727246 1    \x1d1LK2\x1d7V400727246 1    \x1d9KC0 1\x1d12D20260804\x1d16D20260807\x1d9D1\x1d10KA0120\x1e06\x1dKE93350\x1d20P  20\x1dP61431-90K00-00\x1dQ10\x1d4Q20\x1d2P0\x1e06\x1dKE93360\x1d20P  21\x1dP61432-90K00-00\x1dQ10\x1d4Q20\x1d2P0\x1e06\x1dKE93460\x1d20P  59\x1dP55598-60010-00\x1dQ60\x1d4Q180\x1d2P0\x1e06\x1dKE93490\x1d20P  74\x1dP58103-36010-00\x1dQ10\x1d4Q10\x1d2P0\x1e06\x1dKE93500\x1d20P  83\x1dP58103-36030-00\x1dQ10\x1d4Q10\x1d2P0\x1e\x04'
+
+■ フィールド分解（offset はデータ先頭からのバイト位置）
+--- RECORD 0  (offset 0)
+    offset   0  len  3  '[)>'
+--- RECORD 1  (offset 4)
+    offset   4  len  2  '06'
+    offset   7  len  6  '6V0437'
+    offset  14  len  4  '11V0'
+    offset  19  len  3  '20L'
+    offset  23  len 17  '2L400727246 1    '
+    offset  41  len  4  '1LK2'
+    offset  46  len 17  '7V400727246 1    '
+    offset  64  len  6  '9KC0 1'
+    offset  71  len 11  '12D20260804'
+    offset  83  len 11  '16D20260807'
+    offset  95  len  3  '9D1'
+    offset  99  len  8  '10KA0120'
+--- RECORD 2  (offset 108)
+    offset 108  len  2  '06'
+    offset 111  len  7  'KE93350'
+    offset 119  len  7  '20P  20'
+    offset 127  len 15  'P61431-90K00-00'
+    offset 143  len  3  'Q10'
+    offset 147  len  4  '4Q20'
+    offset 152  len  3  '2P0'
+--- RECORD 3  (offset 156)
+    offset 156  len  2  '06'
+    offset 159  len  7  'KE93360'
+    offset 167  len  7  '20P  21'
+    offset 175  len 15  'P61432-90K00-00'
+    offset 191  len  3  'Q10'
+    offset 195  len  4  '4Q20'
+    offset 200  len  3  '2P0'
+--- RECORD 4  (offset 204)
+    offset 204  len  2  '06'
+    offset 207  len  7  'KE93460'
+    offset 215  len  7  '20P  59'
+    offset 223  len 15  'P55598-60010-00'
+    offset 239  len  3  'Q60'
+    offset 243  len  5  '4Q180'
+    offset 249  len  3  '2P0'
+--- RECORD 5  (offset 253)
+    offset 253  len  2  '06'
+    offset 256  len  7  'KE93490'
+    offset 264  len  7  '20P  74'
+    offset 272  len 15  'P58103-36010-00'
+    offset 288  len  3  'Q10'
+    offset 292  len  4  '4Q10'
+    offset 297  len  3  '2P0'
+--- RECORD 6  (offset 301)
+    offset 301  len  2  '06'
+    offset 304  len  7  'KE93500'
+    offset 312  len  7  '20P  83'
+    offset 320  len 15  'P58103-36030-00'
+    offset 336  len  3  'Q10'
+    offset 340  len  4  '4Q10'
+    offset 345  len  3  '2P0'
+--- RECORD 7  (offset 349)
+    offset 349  len  1  '\x04'

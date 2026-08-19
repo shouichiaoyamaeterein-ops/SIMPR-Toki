@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案B 改修サンプルコード（CXJ0560 差分）</title>
+<style>
+  :root{
+    --bg:#F7F6F2; --card:#FFFFFF; --ink:#232A33; --muted:#6A7280;
+    --line:#D6D9DE; --accent:#2E5E9E; --accent-soft:#E8EFF8;
+    --k2:#C24A2E; --k2-soft:#F9ECE7;
+    --fix:#1F7A5A; --fix-soft:#E4F2EC;
+    --warn:#9A6B12; --warn-soft:#FBF2DF;
+    --d-add-bg:#E6FFEC; --d-add-gut:#CCFFD8; --d-add-mk:#1A7F37;
+    --d-del-bg:#FFEBE9; --d-del-gut:#FFD7D5; --d-del-mk:#CF222E;
+    --d-hunk-bg:#DDF4FF; --d-hunk-fg:#0550AE;
+    --d-gut-fg:#8C959F; --d-head-bg:#F0F1F3;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14181D; --card:#1C222A; --ink:#E6EAF0; --muted:#98A1AC;
+      --line:#39414B; --accent:#7FA8DC; --accent-soft:#243447;
+      --k2:#E08066; --k2-soft:#3A2620;
+      --fix:#5DBE99; --fix-soft:#1E3830;
+      --warn:#D6A94A; --warn-soft:#332A16;
+      --d-add-bg:#12261E; --d-add-gut:#1B4721; --d-add-mk:#3FB950;
+      --d-del-bg:#25171C; --d-del-gut:#5D0F12; --d-del-mk:#F85149;
+      --d-hunk-bg:#121D2F; --d-hunk-fg:#4493F8;
+      --d-gut-fg:#6E7681; --d-head-bg:#22272E;
+    }
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink);
+    font-family:"Yu Gothic UI","Hiragino Sans","Meiryo",system-ui,sans-serif;
+    font-size:13.5px; line-height:1.75; margin:0;}
+  .page{max-width:1040px; margin:0 auto; padding:36px 20px 64px}
+  header.doc{border-bottom:2px solid var(--ink); padding-bottom:14px; margin-bottom:22px}
+  .eyebrow{font-size:11.5px; letter-spacing:.14em; color:var(--muted); margin:0 0 6px}
+  h1{font-size:21px; line-height:1.45; margin:0; text-wrap:balance}
+  .meta{display:flex; flex-wrap:wrap; gap:6px 18px; font-size:11.5px; color:var(--muted); margin-top:8px}
+  .meta b{color:var(--ink); font-weight:600}
+  h2{font-size:15.5px; margin:30px 0 10px; padding-left:10px; border-left:4px solid var(--accent)}
+  h2.fixmark{border-left-color:var(--fix)}
+  h3{font-size:13.5px; margin:16px 0 4px}
+
+  .box{border-radius:8px; padding:14px 20px; margin:14px 0; border:1px solid var(--line); background:var(--card)}
+  .box .tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.12em; border-radius:4px; padding:1px 9px; margin-bottom:8px; color:#fff}
+  .box p{margin:0 0 6px; font-size:13.5px; font-weight:600}
+  .box ul{margin:6px 0 0; padding-left:1.3em}
+  .box li{margin:4px 0; font-size:12.6px; font-weight:400}
+  .box.corr{background:var(--k2-soft); border-color:var(--k2)} .box.corr .tag{background:var(--k2)}
+  .box.warn{background:var(--warn-soft); border-color:var(--warn)} .box.warn .tag{background:var(--warn)}
+  .box.good{background:var(--fix-soft); border-color:var(--fix)} .box.good .tag{background:var(--fix)}
+
+  code, .mono{font-family:ui-monospace,Consolas,"ＭＳ ゴシック","MS Gothic",monospace}
+  code{background:var(--accent-soft); padding:1px 5px; border-radius:3px; font-size:12px}
+  pre.raw{font-family:ui-monospace,Consolas,"ＭＳ ゴシック","MS Gothic",monospace; font-size:11.5px;
+    background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px;
+    overflow-x:auto; white-space:pre-wrap; word-break:break-all; line-height:2.0; margin:10px 0}
+  pre.raw b{background:var(--k2); color:#fff; padding:1px 5px; border-radius:3px}
+  pre.raw i{color:var(--accent); font-style:normal; font-weight:700}
+  pre.raw u{text-decoration:none; color:var(--muted)}
+  pre.flow{font-family:ui-monospace,Consolas,"ＭＳ ゴシック","MS Gothic",monospace; font-size:11.5px;
+    background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px;
+    overflow-x:auto; line-height:1.85; margin:10px 0; white-space:pre}
+
+  .diff-file{border:1px solid var(--line); border-radius:8px; overflow:hidden; margin:12px 0 22px; background:var(--card)}
+  .diff-head{background:var(--d-head-bg); border-bottom:1px solid var(--line); padding:8px 14px; font-size:12.5px; display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center}
+  .diff-head .path{font-family:ui-monospace,Consolas,monospace; font-weight:700}
+  .diff-head .stat{font-size:11.5px; font-family:ui-monospace,Consolas,monospace}
+  .diff-head .stat .plus{color:var(--d-add-mk); font-weight:700}
+  .diff-head .stat .minus{color:var(--d-del-mk); font-weight:700}
+  .diff-scroll{overflow-x:auto}
+  table.diff{border-collapse:collapse; width:100%; font-family:ui-monospace,Consolas,"ＭＳ ゴシック","MS Gothic",monospace; font-size:12px; line-height:1.65}
+  table.diff td{padding:0; vertical-align:top}
+  td.ln{width:1%; min-width:46px; text-align:right; padding:0 8px; color:var(--d-gut-fg);
+        user-select:none; border-right:1px solid var(--line); font-variant-numeric:tabular-nums; white-space:nowrap}
+  td.sign{width:1%; min-width:20px; text-align:center; padding:0 2px; user-select:none; font-weight:700}
+  td.code{white-space:pre; padding:0 12px 0 4px; width:100%}
+  tr.add{background:var(--d-add-bg)}
+  tr.add td.ln{background:var(--d-add-gut); color:var(--ink)}
+  tr.add td.sign{color:var(--d-add-mk)}
+  tr.del{background:var(--d-del-bg)}
+  tr.del td.ln{background:var(--d-del-gut); color:var(--ink)}
+  tr.del td.sign{color:var(--d-del-mk)}
+  tr.hunk{background:var(--d-hunk-bg)}
+  tr.hunk td{color:var(--d-hunk-fg); padding:3px 12px; font-size:11.5px}
+  tr.cmt td.code{color:var(--muted)}
+
+  table.tbl{width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden; font-size:12.5px; margin:10px 0}
+  table.tbl th, table.tbl td{border-bottom:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top}
+  table.tbl thead th{background:var(--accent-soft); font-size:12px}
+  table.tbl tbody tr:last-child td{border-bottom:none}
+  table.tbl tr.hit td{background:var(--k2-soft)}
+  .ok{color:var(--fix); font-weight:700}
+  .ng{color:var(--k2); font-weight:700}
+  .em-k2{color:var(--k2); font-weight:700}
+  .em-01{color:var(--accent); font-weight:700}
+  .num{font-variant-numeric:tabular-nums; text-align:right}
+  .badge{display:inline-block; font-size:10.5px; font-weight:700; border-radius:3px; padding:1px 6px; white-space:nowrap}
+  .b-ok{background:var(--fix); color:#fff}
+  .b-inf{background:var(--warn); color:#fff}
+  .b-un{background:var(--k2); color:#fff}
+
+  ol.checks{padding-left:1.4em; margin:8px 0}
+  ol.checks li{margin:6px 0; font-size:12.8px}
+  ol.checks li::marker{color:var(--muted); font-weight:700}
+
+  footer.doc{border-top:1px solid var(--line); margin-top:30px; padding-top:12px; font-size:11.5px; color:var(--muted); display:flex; flex-wrap:wrap; gap:4px 24px}
+  @media print{ body{background:#fff} .page{padding:0; max-width:none} .diff-file,.box,table.tbl,pre.raw,pre.flow{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc">
+    <p class="eyebrow">SIMPR-A｜受注チケット取込 案B 実装サンプル（第4版・根拠検証済み）</p>
+    <h1>CXJ0560 改修差分 ― 受入の固定値「01」を廃止し、実際の受入を採用する</h1>
+    <div class="meta">
+      <span>対象ファイル: <b>Src/CXJ0560.frm</b>（PXJ0560 受注納品書入力[共通EDI:アキタ]）</span>
+      <span>改修箇所: <b>frm内 2箇所</b></span>
+      <span>作成日: <b>2026/08/05</b></span>
+    </div>
+    <p style="font-size:11.5px; color:var(--muted); margin:8px 0 0">
+      本書の記述には <span class="badge b-ok">確認済</span>（ソース・DB実データ・QRデコードで直接確認）と
+      <span class="badge b-inf">推定</span>（照合による推論）と
+      <span class="badge b-un">未確認</span>（確認手段が未入手）を明示しています。
+    </p>
+  </header>
+
+  <div class="box corr">
+    <span class="tag">第3版からの訂正</span>
+    <p>第3版にあった「ハンク3（QRProcに1行追加）」を<b>削除しました</b>。不要であるうえ、有害になり得るためです。</p>
+    <ul>
+      <li>ハンク3は <code>B1lb_Ukeir.Caption = .受入</code> でQR解析値を採用する案でしたが、これは<b>「QRの <code>1L</code> の値が <code>typQRAfter.受入</code> に格納される」という未確認の前提</b>に依存していました。解析処理 <code>QRConvert</code> は共通モジュール <code>..\Module\QT10QSRB.bas</code>（本フォルダ外・未入手）にあり、格納先を確認できていません。</li>
+      <li>さらに、もし <code>1L</code> の値が <code>.納入先工区</code> 側に格納されていた場合、<b>ハンク1が正しく取り出した受入を、ハンク3が空文字で上書きして壊します</b>。</li>
+      <li>ハンク1・2（LostFocusの改修）だけで<b>QR読取・手入力の両経路が成立する</b>ことをソース上で確認しました（次章「なぜ2箇所で足りるか」）。ハンク1・2は格納先がどちらであっても動作します。</li>
+    </ul>
+  </div>
+
+  <h2>改修箇所（すべて Src/CXJ0560.frm 内・2箇所）</h2>
+  <table class="tbl">
+    <thead><tr><th>ハンク</th><th>プロシージャ</th><th>改修前の行</th><th>変更内容</th><th>根拠</th></tr></thead>
+    <tbody>
+      <tr><td><b>1</b></td><td class="mono">iB1_NTorcd_LostFocus</td><td class="num">4744</td><td>固定値「01」→ 受入欄から取得</td><td><span class="badge b-ok">確認済</span> 4744行に <code>B1lb_Ukeir.Caption = "01"</code></td></tr>
+      <tr><td><b>2</b></td><td class="mono">iB1_NUkeir_LostFocus</td><td class="num">4761</td><td>固定値「01」→ 受入欄から取得</td><td><span class="badge b-ok">確認済</span> 4761行に同上</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12.5px; color:var(--muted)">
+    <span class="badge b-ok">確認済</span> 受入に固定値をセットしている箇所は、CXJ0560.frm 全体でこの2箇所のみです（<code>B1lb_Ukeir</code> の全出現を検索して確認：93行=コントロール定義、4736・4753行=クリア、4740・4757行=コメント、4894行=コメント、5417行=ヘッダ組立、5929行=読み戻し）。
+  </p>
+
+  <h2>なぜ2箇所で足りるか（処理の流れ）</h2>
+  <pre class="flow">【QR読取経路】                                     【手入力経路】
+QT10QSR_RCVProc → QRConvert(QT10QSR_ReadData)      受入欄 iB1_NUkeir を編集
+  ↓ 5903行                                            ↓ フォーカス移動
+QRProc                                             <b>iB1_NUkeir_LostFocus  ← ハンク2</b>
+  5919行 iB1_NUkeir = 工区(2桁) + 受入(2桁)            ↓
+  5923行 <b>Call iB1_NTorcd_LostFocus  ← ハンク1</b>        B1lb_Ukeir.Caption が決まる
+    ↓                                                 ↓
+  B1lb_Ukeir.Caption が決まる                       ContentsChk
+  5929行 .受入 = Mid(B1lb_Ukeir.Caption, 1, 2)        5417行 wcc_Head に B1lb_Ukeir を連結
+    ↓                                                 ↓
+  5945-5949行 wcc_Head の7-8桁目に .受入              5468行 ChekData(1)
+  6055行 ChekData(0)                                  ↓
+    ↓                                              ストアド「受注JAMAチェック_アキタ」
+ストアド「受注JAMAチェック_アキタ」                   141行 @UKE2 = SUBSTRING(@HEAD,7,2)</pre>
+  <p style="font-size:12.5px">
+    <span class="badge b-ok">確認済</span> <b>QR読取経路も、5923行で <code>iB1_NTorcd_LostFocus</code> を明示的に呼んでいます。</b>
+    その時点で受入欄（<code>iB1_NUkeir</code>）にはQR解析値が5919行でセット済みなので、ハンク1の改修結果がそのまま
+    5929行で <code>.受入</code> に入り、ヘッダ経由でストアドに渡ります。したがって<b>QRProcに追加の改修は不要</b>です。
+  </p>
+
+  <h2>改修方法の妥当性検証</h2>
+  <p style="font-size:12.5px; color:var(--muted)">この改修が成立するために必要な前提を、ソースで1件ずつ確認した結果です。</p>
+  <table class="tbl">
+    <thead><tr><th>検証項目</th><th>結果</th><th>根拠</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Enter押下時に LostFocus は必ず発火するか</b><br><span style="color:var(--muted)">発火しなければ、入力した受入がラベルに反映されないまま処理が進む</span></td>
+        <td class="ok">発火する</td>
+        <td><span class="badge b-ok">確認済</span> <code>Key_Acc</code> 4553-4558行。Enter（<code>vbKeyReturn</code>）で
+          <code>Dummy.Enabled = True: Dummy.SetFocus: DoEvents</code> を実行してから <code>PB_ENT_Click</code>（→<code>ReturnPress</code>）を呼ぶ。
+          <b>いったんダミーコントロールへフォーカスを移し <code>DoEvents</code> でイベントを処理させてから</b>進むため、
+          どの入力欄にフォーカスがあってもEnterで必ず LostFocus が走る（フォームは <code>KeyPreview = True</code>）</td>
+      </tr>
+      <tr>
+        <td><b>フォームモジュール内で <code>Right()</code> が使えるか</b><br><span style="color:var(--muted)">VB6ではフォームのプロパティ名と文字列関数名が衝突する場合がある</span></td>
+        <td class="ok">使える</td>
+        <td><span class="badge b-ok">確認済</span> 同一プロジェクトの他フォームで修飾なしの <code>Right()</code> を使用中
+          （CXJ0050.frm 4631行 <code>iB12_Seban(Index) = Right(RV_Seban, 3)</code>、CXJ0250.frm 4733行、FrmMenu.frm 1269行、CCT0045.frm 1963行ほか）</td>
+      </tr>
+      <tr>
+        <td><b><code>Format("", "!@@")</code> は2桁の空白を返すか</b><br><span style="color:var(--muted)">空文字を返すなら受入欄・ヘッダの桁がずれる</span></td>
+        <td class="ok">2桁の空白を返す</td>
+        <td><span class="badge b-ok">確認済（現行動作からの逆算）</span> 現行コードは <code>B1lb_Kojyo</code> が空のまま
+          5417行 <code>Format(B1lb_Kojyo,"!@@") &amp; Format(B1lb_Ukeir,"!@@")</code> でヘッダを連結している。
+          もし空文字を返すなら受入がヘッダ5-6桁目に来てしまい、ストアドの <code>SUBSTRING(@HEAD,7,2)</code>（141行）と一致せず取込できない。
+          実際には受入01で正常に登録されている（受注テーブル 1048向け 720,299件・SQL実行結果）</td>
+      </tr>
+      <tr>
+        <td><b>受入欄・ラベルがクリアされるタイミング</b></td>
+        <td class="ok">改修後の処理順に影響なし</td>
+        <td><span class="badge b-ok">確認済</span> <code>HeadBodyClear("B")</code>（5119-5131行）はパターン <code>iB*_*</code> と <code>B*lb_*</code> に一致する
+          コントロールをクリアするため、<code>iB1_NUkeir</code>（.Text）と <code>B1lb_Ukeir</code>（.Caption）の両方が対象。
+          呼び出しは QRProc 5916行（→5919行で受入欄を再セット→5923行で LostFocus）と ReturnPress 5154行（手入力モードへ移行する時点）で、
+          いずれも<b>クリア後に値がセットされる順序</b></td>
+      </tr>
+      <tr>
+        <td><b>受入欄が未入力のときエラーになるか</b></td>
+        <td class="ok">エラー4になる</td>
+        <td><span class="badge b-ok">確認済</span> ContentsChk 5413-5414行 <code>If Trim(iB1_NUkeir) = "" Then wcc_Head = wcc_Head &amp; Space(4)</code>。
+          受入欄が空ならヘッダ5-8桁目が空白となり、ストアドの受入確認（188-205行）で該当なし→エラー4</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===================== ハンク1 ===================== -->
+  <h2 class="fixmark">ハンク1　iB1_NTorcd_LostFocus</h2>
+  <div class="diff-file">
+    <div class="diff-head">
+      <span class="path">Src/CXJ0560.frm</span>
+      <span class="stat"><span class="plus">+8</span> <span class="minus">−1</span></span>
+      <span style="color:var(--muted)">Private Sub iB1_NTorcd_LostFocus()</span>
+    </div>
+    <div class="diff-scroll">
+      <table class="diff">
+        <tr class="hunk"><td colspan="4">@@ -4742,5 +4742,12 @@ Private Sub iB1_NTorcd_LostFocus()</td></tr>
+        <tr><td class="ln">4742</td><td class="ln">4742</td><td class="sign"></td><td class="code">     B1lb_Torcd.Caption = "1048"</td></tr>
+        <tr><td class="ln">4743</td><td class="ln">4743</td><td class="sign"></td><td class="code">     B1lb_Kojyo.Caption = ""</td></tr>
+        <tr class="del"><td class="ln">4744</td><td class="ln"></td><td class="sign">−</td><td class="code">     B1lb_Ukeir.Caption = "01"</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4744</td><td class="sign">+</td><td class="code">'-------------------------------------------------------------- 2026/08/05 UPD START</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4745</td><td class="sign">+</td><td class="code">'    受入の固定値「01」を廃止し、受入欄の内容から受入を取り出す</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4746</td><td class="sign">+</td><td class="code">'    iB1_NUkeir は 4桁 ＝ 工区(2桁) ＋ 受入(2桁)</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4747</td><td class="sign">+</td><td class="code">'    工区の有無にかかわらず取り出せるよう、前後空白を除いた右2桁を採用する</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4748</td><td class="sign">+</td><td class="code">'    取引先受入マスタに未登録の受入は、ストアド側でエラー4(受入未登録)となる</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4749</td><td class="sign">+</td><td class="code">'     B1lb_Ukeir.Caption = "01"</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4750</td><td class="sign">+</td><td class="code">     B1lb_Ukeir.Caption = Right(Trim(iB1_NUkeir.Text), 2)</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4751</td><td class="sign">+</td><td class="code">'-------------------------------------------------------------- 2026/08/05 UPD END</td></tr>
+        <tr><td class="ln">4745</td><td class="ln">4752</td><td class="sign"></td><td class="code">    </td></tr>
+        <tr><td class="ln">4746</td><td class="ln">4753</td><td class="sign"></td><td class="code">End Sub</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===================== ハンク2 ===================== -->
+  <h2 class="fixmark">ハンク2　iB1_NUkeir_LostFocus</h2>
+  <div class="diff-file">
+    <div class="diff-head">
+      <span class="path">Src/CXJ0560.frm</span>
+      <span class="stat"><span class="plus">+8</span> <span class="minus">−1</span></span>
+      <span style="color:var(--muted)">Private Sub iB1_NUkeir_LostFocus()</span>
+    </div>
+    <div class="diff-scroll">
+      <table class="diff">
+        <tr class="hunk"><td colspan="4">@@ -4759,5 +4766,12 @@ Private Sub iB1_NUkeir_LostFocus()</td></tr>
+        <tr><td class="ln">4759</td><td class="ln">4766</td><td class="sign"></td><td class="code">     B1lb_Torcd.Caption = "1048"</td></tr>
+        <tr><td class="ln">4760</td><td class="ln">4767</td><td class="sign"></td><td class="code">     B1lb_Kojyo.Caption = ""</td></tr>
+        <tr class="del"><td class="ln">4761</td><td class="ln"></td><td class="sign">−</td><td class="code">     B1lb_Ukeir.Caption = "01"</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4768</td><td class="sign">+</td><td class="code">'-------------------------------------------------------------- 2026/08/05 UPD START</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4769</td><td class="sign">+</td><td class="code">'    受入の固定値「01」を廃止し、受入欄の内容から受入を取り出す</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4770</td><td class="sign">+</td><td class="code">'    iB1_NUkeir は 4桁 ＝ 工区(2桁) ＋ 受入(2桁)</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4771</td><td class="sign">+</td><td class="code">'    工区の有無にかかわらず取り出せるよう、前後空白を除いた右2桁を採用する</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4772</td><td class="sign">+</td><td class="code">'    取引先受入マスタに未登録の受入は、ストアド側でエラー4(受入未登録)となる</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4773</td><td class="sign">+</td><td class="code">'     B1lb_Ukeir.Caption = "01"</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4774</td><td class="sign">+</td><td class="code">     B1lb_Ukeir.Caption = Right(Trim(iB1_NUkeir.Text), 2)</td></tr>
+        <tr class="add"><td class="ln"></td><td class="ln">4775</td><td class="sign">+</td><td class="code">'-------------------------------------------------------------- 2026/08/05 UPD END</td></tr>
+        <tr><td class="ln">4762</td><td class="ln">4776</td><td class="sign"></td><td class="code"></td></tr>
+        <tr><td class="ln">4763</td><td class="ln">4777</td><td class="sign"></td><td class="code">End Sub</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h2>採用した式 <span class="mono" style="font-size:13px">Right(Trim(iB1_NUkeir.Text), 2)</span> の根拠</h2>
+  <table class="tbl">
+    <thead><tr><th>根拠</th><th>内容</th><th>区分</th></tr></thead>
+    <tbody>
+      <tr><td>受入欄の構成</td><td>5919行 <code>iB1_NUkeir = Format(RTrim(.納入先工区),"!@@") &amp; Format(RTrim(.受入),"!@@")</code>＝工区2桁＋受入2桁。コントロール定義は MaxLength=4（3320行）</td><td><span class="badge b-ok">確認済</span></td></tr>
+      <tr><td>受入は右側</td><td>コメントアウトされている元コード 4737行 <code>TDBConvert(0, iB1_NTorcd.text, Mid(iB1_NUkeir.text,1,1), Mid(iB1_NUkeir.text,3,2))</code> — 第3引数=工区、<b>第4引数=受入が3〜4桁目</b></td><td><span class="badge b-ok">確認済</span></td></tr>
+      <tr><td>受入コードは2桁</td><td>取引先受入マスタの列定義は <code>受入 varchar(2)</code>。1048の登録値は 01・02・10・3W・K1・K2・K3・K5・P1・T2・W2・W3・W5・W6 の14件で<b>すべて2桁</b>（SQL実行結果）</td><td><span class="badge b-ok">確認済</span></td></tr>
+      <tr><td>受入は原則3〜4桁目</td><td><code>Format("", "!@@")</code> は2桁の空白を返すため（「改修方法の妥当性検証」参照）、工区が空でも受入は3〜4桁目に置かれる。<b>したがって <code>Mid(…,3,2)</code> でも通常は動作する</b></td><td><span class="badge b-ok">確認済</span></td></tr>
+      <tr><td>それでも <code>Right(Trim(…),2)</code> を選ぶ理由</td><td>① 手入力で操作者が受入2桁だけ（例 <span class="mono">K2</span>）を左詰めで入力しても正しく取れる（<code>Mid(…,3,2)</code> だと空になりエラー4）<br>② <code>QRConvert</code> がQRの受入を <code>.納入先工区</code> 側に格納していた場合でも正しく取れる（残る未確認事項 #1 の影響を受けない）</td><td><span class="badge b-ok">確認済</span></td></tr>
+      <tr><td><code>Right</code> の挙動</td><td>VB6の <code>Right(string, n)</code> は n が文字数以上のとき文字列全体を返す（実行時エラーにならない）。フォームモジュール内で修飾なしに使用できることは他フォームの実績で確認済</td><td><span class="badge b-ok">確認済</span></td></tr>
+    </tbody>
+  </table>
+  <table class="tbl">
+    <thead><tr><th>受入欄の内容</th><th>Trim後</th><th>右2桁</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">␣␣K2（工区空・受入K2）</td><td class="mono">K2</td><td class="mono">K2</td><td class="ok">受入K2</td></tr>
+      <tr><td class="mono">␣1K2（工区␣1・受入K2）</td><td class="mono">1K2</td><td class="mono">K2</td><td class="ok">受入K2</td></tr>
+      <tr><td class="mono">K2␣␣（工区にK2が入った場合）</td><td class="mono">K2</td><td class="mono">K2</td><td class="ok">受入K2</td></tr>
+      <tr><td class="mono">K2（2桁だけ入力）</td><td class="mono">K2</td><td class="mono">K2</td><td class="ok">受入K2</td></tr>
+      <tr><td class="mono">01</td><td class="mono">01</td><td class="mono">01</td><td class="ok">受入01（従来と同じ）</td></tr>
+      <tr><td class="mono">（未入力）</td><td class="mono">（空）</td><td class="mono">（空）</td><td class="ng">エラー4「受入未登録」</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12.5px; color:var(--muted)">この式は、受入が受入欄の前半・後半どちらに入っても正しく取り出せます。<b>「<code>QRConvert</code> が受入をどのメンバに格納するか」を確認しなくても動作する</b>のが、この式を選んだ理由です。</p>
+
+  <h2>QRデコード結果（実チケット A0120-1/11）</h2>
+  <p style="font-size:13px; margin:0 0 4px">
+    <span class="badge b-ok">確認済</span> qr_sample.png を OpenCV 4.13 でデコード。倍率を変えて5回試行し<b>すべて同一結果</b>（総350バイト）。全文は <b>QR解析結果_qr_sample.txt</b> に保存。
+  </p>
+  <pre class="raw">[)&gt;<u>〈RS〉</u>06<u>〈GS〉</u><i>6V</i>0437<u>〈GS〉</u><i>11V</i>0<u>〈GS〉</u><i>20L</i><u>〈GS〉</u><i>2L</i>400727246 1␣␣␣␣<u>〈GS〉</u><b>1LK2</b><u>〈GS〉</u><i>7V</i>400727246 1␣␣␣␣<u>〈GS〉</u><i>9K</i>C0␣1<u>〈GS〉</u><i>12D</i>20260804<u>〈GS〉</u><i>16D</i>20260807<u>〈GS〉</u><i>9D</i>1<u>〈GS〉</u><i>10K</i>A0120<u>〈RS〉</u>06<u>〈GS〉</u><i>K</i>E93350<u>〈GS〉</u><i>20P</i>␣␣20<u>〈GS〉</u><i>P</i>61431-90K00-00<u>〈GS〉</u><i>Q</i>10<u>〈GS〉</u><i>4Q</i>20<u>〈GS〉</u><i>2P</i>0<u>〈RS〉</u>…（明細5件）…<u>〈RS〉〈EOT〉</u></pre>
+  <table class="tbl">
+    <thead><tr><th class="num">offset</th><th>タグ</th><th>値</th><th>券面の記載</th><th>対応する項目（推定）</th></tr></thead>
+    <tbody>
+      <tr><td class="num">7</td><td class="mono">6V</td><td class="mono">0437</td><td>自社コード <b>0437</b>-0</td><td>仕入先（自社）コード <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">14</td><td class="mono">11V</td><td class="mono">0</td><td>自社コード 0437-<b>0</b></td><td>仕入先 事業所 <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">19</td><td class="mono">20L</td><td class="mono">（空）</td><td>―</td><td>不明 <span class="badge b-un">未確認</span></td></tr>
+      <tr><td class="num">23</td><td class="mono">2L</td><td class="mono">400727246␣1␣␣␣␣</td><td>納入先 <b>400727246 -1</b></td><td>納入先（＋事業所） <span class="badge b-inf">推定</span></td></tr>
+      <tr class="hit"><td class="num"><b>41</b></td><td class="mono"><b>1L</b></td><td class="mono"><b>K2</b>（値は offset 43 から2バイト）</td><td><b>受入 K2</b></td><td><b>受入</b> <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">46</td><td class="mono">7V</td><td class="mono">400727246␣1␣␣␣␣</td><td>支給元 400727246</td><td>支給元 <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">64</td><td class="mono">9K</td><td class="mono">C0␣1</td><td>―</td><td>不明 <span class="badge b-un">未確認</span></td></tr>
+      <tr><td class="num">71</td><td class="mono">12D</td><td class="mono">20260804</td><td>作成日 26年8月4日</td><td>作成日 <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">83</td><td class="mono">16D</td><td class="mono">20260807</td><td>納入日 26年8月7日</td><td>納入日 <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">95</td><td class="mono">9D</td><td class="mono">1</td><td>01便</td><td>納入便 <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">99</td><td class="mono">10K</td><td class="mono">A0120</td><td>A0120-1/11</td><td>納入番号 <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">111</td><td class="mono">K</td><td class="mono">E93350</td><td>―</td><td>不明 <span class="badge b-un">未確認</span></td></tr>
+      <tr><td class="num">119</td><td class="mono">20P</td><td class="mono">␣␣20</td><td>背番号 20</td><td>背番号 <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">127</td><td class="mono">P</td><td class="mono">61431-90K00-00</td><td>品番 61431-90K00-00</td><td>品番 <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">143</td><td class="mono">Q</td><td class="mono">10</td><td>収容数 10</td><td>収容数 <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">147</td><td class="mono">4Q</td><td class="mono">20</td><td>納入数 20（10×2箱）</td><td>納入数 <span class="badge b-inf">推定</span></td></tr>
+      <tr><td class="num">152</td><td class="mono">2P</td><td class="mono">0</td><td>―</td><td>不明 <span class="badge b-un">未確認</span></td></tr>
+    </tbody>
+  </table>
+  <div class="box">
+    <p>この表の読み方</p>
+    <ul>
+      <li><span class="badge b-ok">確認済</span> は「offset・タグ・値」の3列です。デコード結果そのものです。</li>
+      <li><span class="badge b-inf">推定</span> の「対応する項目」列は、<b>値が券面の記載と一致することから推測した</b>ものです。タグと項目の対応表（規格書や <code>QRConvert</code> のソース）は入手できていません。</li>
+      <li>残り4明細（背番号 21・59・74・83／収容数 10・60・10・10／納入数 20・180・10・10）も同様に券面と一致しています。<span class="badge b-ok">確認済</span></li>
+      <li><b>本改修は上記の推定に依存していません。</b>受入欄の内容から右2桁を取り出す方式のため、タグと項目の対応が未確定でも動作します。</li>
+    </ul>
+  </div>
+
+  <h2>変更しない箇所と、その理由</h2>
+  <div class="box warn">
+    <span class="tag">重要</span>
+    <p>納入先 <code>B1lb_Torcd.Caption = "1048"</code> と 工区 <code>B1lb_Kojyo.Caption = ""</code> は固定値のまま残してください。</p>
+    <ul>
+      <li><span class="badge b-ok">確認済</span> ヘッダは <code>納入先(4桁)＋工区(2桁)＋受入(2桁)＋…</code> の順で組み立てられます（CXJ0560.frm 5935-5949行）。</li>
+      <li><span class="badge b-ok">確認済</span> ストアドは納入先を <code>SUBSTRING(@HEAD,1,5)</code>＝<b>5桁</b>で読み（受注JAMAチェック_アキタ 172行・178行）、受入を <code>SUBSTRING(@HEAD,7,2)</code> で読みます（同141行）。</li>
+      <li><span class="badge b-inf">推定</span> 現在は工区が空白のため5桁目が空白となり、SQL Serverの varchar 比較（末尾空白を無視）で <code>'1048 ' = '1048'</code> が成立していると考えられます。工区にQRの値（「␣1」）を入れると5桁目が変わり、納入先の判定（エラー1・2）が成立しなくなります。</li>
+      <li><span class="badge b-ok">確認済</span> QRの納入先は9桁（400727246）で、自社の取引先CD 1048 と体系が異なります。また変換用ストアド <code>EDI_取引先変換</code>（4838行のコメント内で参照）は<b>当DBのSPフォルダに存在しません</b>。したがって納入先の固定値は必要です。</li>
+    </ul>
+  </div>
+
+  <h2>改修後の動作</h2>
+  <p style="font-size:12.5px; color:var(--muted)"><span class="badge b-ok">確認済</span> 下記のエラー番号・メッセージ・分岐はすべてストアド「受注JAMAチェック_アキタ」（188-205行／349-372行／454-469行）と CXJ0560.frm（5620-5652行）で確認したものです。</p>
+  <table class="tbl">
+    <thead><tr><th>経路</th><th>受入</th><th>取引先受入マスタ</th><th>品番取引先マスタ</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>QR読取</td><td><span class="em-k2">K2</span></td><td>登録あり <span class="ok">✓</span></td><td>K2行あり <span class="ok">✓</span></td>
+        <td><span class="ok">受入K2で受注登録 → 出荷指示書に K2 が印字</span></td></tr>
+      <tr><td>QR読取</td><td><span class="em-k2">K2</span></td><td>登録あり <span class="ok">✓</span></td><td>K2行なし <span class="ng">✕</span></td>
+        <td><span class="ng">エラー15「品番未登録【N行目】」→ チケット1枚が丸ごと取込中止</span></td></tr>
+      <tr><td>QR読取</td><td><span class="em-01">01</span></td><td>登録あり <span class="ok">✓</span></td><td>01行あり <span class="ok">✓</span></td>
+        <td>従来どおり 受入01 で受注登録</td></tr>
+      <tr><td><b>手入力</b></td><td><span class="em-k2">K2</span> を入力</td><td>登録あり <span class="ok">✓</span></td><td>K2行あり <span class="ok">✓</span></td>
+        <td><span class="ok">受入K2で受注登録（改修前は01で登録されていた）</span></td></tr>
+      <tr><td>両経路</td><td>未登録の受入</td><td>登録なし <span class="ng">✕</span></td><td>―</td>
+        <td><span class="ng">エラー4「受入未登録」→ 取込中止（01には置き換えない）</span></td></tr>
+      <tr><td>両経路</td><td>空白</td><td>該当なし <span class="ng">✕</span></td><td>―</td>
+        <td><span class="ng">エラー4「受入未登録」→ 取込中止</span></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12.5px; color:var(--muted)">
+    <span class="badge b-ok">確認済</span> 受入確認の判定は「取引先受入マスタ → 受注取引先CD変換マスタ → 見つからなければエラー4」の順です（SP 188-205行）。変換マスタは<b>0件</b>（SQL実行結果）のため、実質「取引先受入マスタに無ければエラー4」となります。
+  </p>
+
+  <h2>実装前に確認しておきたいこと</h2>
+  <table class="tbl">
+    <thead><tr><th>#</th><th>未確認の事項</th><th>確認方法</th><th>本改修への影響</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><code>QRConvert</code> がQRの <code>1L</code>（K2）をどのメンバに格納するか</td><td>スキャン直後の画面で<b>受入欄に「K2」が含まれる</b>ことを目視確認（受入欄はQR解析値のまま残り、上書きされるのは隣のラベルのみ）</td><td>受入欄のどこかに入っていれば動作する。<b>まったく入っていない場合のみ要再検討</b></td></tr>
+      <tr><td>2</td><td>アキタ様が各品番に割り当てている受入の全体像</td><td>かんばん明細書（背番号＋受入・総枚数176／8ページ）と品番取引先マスタを全品番突合</td><td>整備漏れの品番はエラー15でチケット全体が取込不可になる</td></tr>
+    </tbody>
+  </table>
+
+  <h2>テスト観点</h2>
+  <ol class="checks">
+    <li><b>K2チケット（未取込のもの）をスキャン</b> → 画面のラベルに <b>K2</b> が表示され、受注テーブルに <b>受入K2</b> で登録され、出荷指示書に <b>K2</b> が印字されること。</li>
+    <li><b>受入01のチケットをスキャン</b> → 従来どおり受入01で登録され、動作が変わっていないこと。</li>
+    <li><b>手入力：受入欄に「K2」を入力してEnter</b> → <b>受入K2</b> で登録されること（改修前は01になっていた）。左詰め2桁・4桁のどちらの入力でも同じ結果になること。</li>
+    <li><b>手入力：受入欄を未入力のままEnter</b> → エラー4「受入未登録」となり、<b>01で登録されない</b>こと。</li>
+    <li><b>品番取引先マスタにその受入の行が無い品番を含むチケット</b> → エラー15「品番未登録【N行目】」が表示され、<b>チケットが1件も登録されない</b>こと。</li>
+    <li><b>取引先受入マスタに無い受入</b>（検証環境で一時的に行を外して確認） → エラー4「受入未登録」が表示されること。</li>
+    <li><b>同一チケットの再スキャン</b> → 従来どおりエラー16「既に受注データが存在します」で二重登録されないこと。</li>
+    <li><b>後続帳票</b>：納品書・検収・売上実績で、受入K2の受注が正しく扱われること（品番取引先マスタのK2行に契約先1048が設定済みであることはSQLで確認済み）。</li>
+  </ol>
+
+  <div class="box warn">
+    <span class="tag">運用上の注意</span>
+    <p>この改修は「全チケット一斉切替」です。リリース前に下記を済ませてください。</p>
+    <ul>
+      <li><span class="badge b-ok">確認済</span> <b>品番取引先マスタの整備。</b>現状（SQL実行結果）は 01:559品番／02:23／10:1／K1:1／K2:14／W3:4／W5:1 で、<b>3W・K3・K5・P1・T2・W2・W6 は0品番</b>です。これらの受入のチケットが来ると、その品番の行が無いためエラー15になります。</li>
+      <li><span class="badge b-inf">推定</span> 01の559品番は、受入が固定値01であった時代に登録された行です。<b>アキタ様が実際に割り当てている受入と一致しているかは未確認</b>のため、切替前にかんばん明細書と突合してください。</li>
+      <li><span class="badge b-ok">確認済</span> <b>切替日を決める。</b>受注重複チェックのキーに受入が含まれる（SP 454-469行）ため、切替日をまたいで同じ伝票を再スキャンすると、01で取込済みの伝票をK2で二重登録できてしまいます。</li>
+      <li><span class="badge b-ok">確認済</span> <b>既に01で登録済みのデータは自動では直りません。</b>受注テーブルの1048向けは受入01が720,299件（2011年〜・SQL実行結果）。遡ってK2にする場合はデータ補正と出荷指示書の再発行が別途必要です。</li>
+      <li><span class="badge b-ok">確認済</span> <b>手入力の運用周知。</b>改修後は受入欄が未入力だとエラー4になります（従来は自動的に01が入っていました）。</li>
+    </ul>
+  </div>
+
+  <footer class="doc">
+    <span>詳細: 調査報告書「受入K2でチケットQR取込不可」（2026/08/05・最終版）4章 案B</span>
+    <span>関連: ポンチ絵_案B_改修前後比較.html ／ QR解析結果_qr_sample.txt</span>
+  </footer>
+</div>
+</body>
+</html>
