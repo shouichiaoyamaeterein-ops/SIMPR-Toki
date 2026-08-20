@@ -1,9 +1,9 @@
 VERSION 5.00
-Object = "{8FF8DA3B-2BD7-11D4-806A-00000EA57F9E}#4.0#0"; "CIS3D_~1.OCX"
-Object = "{B5AA0C17-2C0D-11D4-831F-009027089EFF}#2.0#0"; "CISBTN~1.OCX"
-Object = "{90954F85-2B4C-11D4-806A-00000EA57F9E}#7.0#0"; "CISTEX~1.OCX"
-Object = "{1EE89F6D-4F21-4577-AD2D-097803C5570A}#1.3#0"; "CISYMD~3.OCX"
-Object = "{1BA4D453-0150-11CE-89B0-0000C037528B}#3.2#0"; "PDQCom32.OCX"
+Object = "{8FF8DA3B-2BD7-11D4-806A-00000EA57F9E}#4.0#0"; "Cis3D_6.0.ocx"
+Object = "{B5AA0C17-2C0D-11D4-831F-009027089EFF}#2.0#0"; "CisBtn_6.0.ocx"
+Object = "{90954F85-2B4C-11D4-806A-00000EA57F9E}#7.0#0"; "CisText_6.0.ocx"
+Object = "{1EE89F6D-4F21-4577-AD2D-097803C5570A}#1.3#0"; "CisYMDwB_6.0.ocx"
+Object = "{648A5603-2C6E-101B-82B6-000000000014}#1.1#0"; "MSCOMM32.OCX"
 Begin VB.Form CXJ0560 
    BackColor       =   &H00808000&
    BorderStyle     =   1  '固定(実線)
@@ -32,6 +32,13 @@ Begin VB.Form CXJ0560
    ScaleHeight     =   10980
    ScaleWidth      =   15330
    WindowState     =   2  '最大化
+   Begin MSCommLib.MSComm MSComm1 
+      Left            =   120
+      Top             =   8760
+      _ExtentX        =   1005
+      _ExtentY        =   1005
+      _Version        =   393216
+   End
    Begin VB.PictureBox B1_Area4 
       Height          =   1005
       Left            =   600
@@ -269,29 +276,6 @@ Begin VB.Form CXJ0560
             cPositionX      =   40
          End
       End
-   End
-   Begin PdqcommLib.PDQComm PDQComm1 
-      Height          =   480
-      Left            =   4245
-      TabIndex        =   80
-      Top             =   855
-      Width           =   480
-      _Version        =   196610
-      _ExtentX        =   847
-      _ExtentY        =   847
-      _StockProps     =   4
-      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "ＭＳ ゴシック"
-         Size            =   11.26
-         Charset         =   128
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      FastScroll      =   0   'False
-      Object.Height          =   34
-      Object.Width           =   84
    End
    Begin VB.Timer Timer2 
       Left            =   -30
@@ -4741,7 +4725,14 @@ Private Sub iB1_NTorcd_LostFocus()
 '    End If
      B1lb_Torcd.Caption = "1048"
      B1lb_Kojyo.Caption = ""
-     B1lb_Ukeir.Caption = "01"
+'-------------------------------------------------------------- 2026/08/05 UPD START
+'    受入の固定値「01」を廃止し、受入欄の内容から受入を取り出す
+'    iB1_NUkeir は 4桁 ＝ 工区(2桁) ＋ 受入(2桁)
+'    工区の有無にかかわらず取り出せるよう、前後空白を除いた右2桁を採用する
+'    取引先受入マスタに未登録の受入は、ストアド側でエラー4(受入未登録)となる
+'     B1lb_Ukeir.Caption = "01"
+     B1lb_Ukeir.Caption = Right(Trim(iB1_NUkeir.Text), 2)
+'-------------------------------------------------------------- 2026/08/05 UPD END
     
 End Sub
 '*---------------------------------------------------*
@@ -4758,7 +4749,14 @@ Private Sub iB1_NUkeir_LostFocus()
 '    End If
      B1lb_Torcd.Caption = "1048"
      B1lb_Kojyo.Caption = ""
-     B1lb_Ukeir.Caption = "01"
+'-------------------------------------------------------------- 2026/08/05 UPD START
+'    受入の固定値「01」を廃止し、受入欄の内容から受入を取り出す
+'    iB1_NUkeir は 4桁 ＝ 工区(2桁) ＋ 受入(2桁)
+'    工区の有無にかかわらず取り出せるよう、前後空白を除いた右2桁を採用する
+'    取引先受入マスタに未登録の受入は、ストアド側でエラー4(受入未登録)となる
+'     B1lb_Ukeir.Caption = "01"
+     B1lb_Ukeir.Caption = Right(Trim(iB1_NUkeir.Text), 2)
+'-------------------------------------------------------------- 2026/08/05 UPD END
 
 End Sub
 '*---------------------------------------------------*
@@ -5093,7 +5091,7 @@ Private Function DispChange(Pro As String)
     If ProcHB = "B2" Then
         SyoriNM = "【 読 取 中 】"
         K_Sykbnm.BackColor = ReadColor.BackColor
-        Set QT10QSR_Comm = PDQComm1
+        Set QT10QSR_Comm = MSComm1      '----- 2026/08/20 PDQComm1 ⇒ MSComm1
         Call QT10QSRInfoGet
         If Not QT10QSR_Open Then
            End
@@ -5873,7 +5871,7 @@ Private Function ChiketoProc()
 '   * かんばんＪＡＭＡ読取画面表示 *
     
 ' 232C ｵﾌﾞｼﾞｪｸﾄ初期設定
-    Set QT10QSR_Comm = PDQComm1
+    Set QT10QSR_Comm = MSComm1      '----- 2026/08/20 PDQComm1 ⇒ MSComm1
     Call QT10QSRInfoGet
     If Not QT10QSR_Open Then
         Call PB_CAN_Click
@@ -5889,7 +5887,7 @@ End Function
 '+------------------------------+
 '+  読取処理     *
 '+------------------------------+
-Private Sub PDQComm1_OnComm()
+Private Sub MSComm1_OnComm()        '----- 2026/08/20 PDQComm1 ⇒ MSComm1
     Static wPNo     As Integer
     Static Rtn      As String
     Dim wComm       As String
